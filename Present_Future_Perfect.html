@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz 2 - Present Perfect & Future Perfect — SMK Mikael</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ungu: #4B1D6E;
+    --ungu-tua: #321247;
+    --ungu-muda: #EFE6F6;
+    --merah: #B3161B;
+    --merah-muda: #FBE9EA;
+    --kertas: #FAF8FC;
+    --tinta: #1E1530;
+    --abu: #6F6580;
+    --garis: #DCD3E6;
+    --benar: #1F7A4D;
+    --benar-muda: #E4F3EA;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--kertas);
+    color: var(--tinta);
+    line-height: 1.55;
+    -webkit-user-select: none; user-select: none;
+  }
+  input { -webkit-user-select: text; user-select: text; }
+  button { font: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible, label:focus-within { outline: 3px solid var(--merah); outline-offset: 2px; }
+
+  /* ---------- kop ---------- */
+  .kop {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--ungu); color: #fff;
+    border-bottom: 4px solid var(--merah);
+  }
+  .kop-in {
+    max-width: 720px; margin: 0 auto; padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .kop-sekolah { font-weight: 800; letter-spacing: -0.01em; font-size: 15px; }
+  .kop-sekolah small { display: block; font-weight: 500; opacity: .75; font-size: 12px; letter-spacing: 0; }
+  .kop-status { display: flex; gap: 10px; align-items: center; }
+  .pil {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.12); padding: 6px 12px; border-radius: 999px;
+    font-weight: 600; font-size: 13px; font-variant-numeric: tabular-nums;
+  }
+  .pil.bahaya { background: var(--merah); }
+  .pil .dot { width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+
+  /* ---------- kanvas ---------- */
+  .kanvas { max-width: 720px; margin: 0 auto; padding: 36px 20px 80px; }
+  .layar { display: none; }
+  .layar.aktif { display: block; }
+
+  h1 { font-size: clamp(28px, 5vw, 38px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+  h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .pengantar { color: var(--abu); margin-top: 8px; font-size: 16px; max-width: 56ch; }
+
+  .field { margin-top: 22px; }
+  .field label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+  .field input {
+    width: 100%; padding: 12px 14px; font: inherit; font-size: 16px;
+    border: 1.5px solid var(--garis); border-radius: 8px; background: #fff; color: var(--tinta);
+  }
+  .field input:focus { border-color: var(--ungu); outline: none; box-shadow: 0 0 0 3px var(--ungu-muda); }
+  .baris { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 520px) { .baris { grid-template-columns: 1fr; } }
+
+  .aturan {
+    margin-top: 28px; background: #fff; border: 1.5px solid var(--garis);
+    border-left: 6px solid var(--merah); border-radius: 10px; padding: 18px 20px;
+  }
+  .aturan h3 { font-size: 15px; font-weight: 700; color: var(--merah); margin-bottom: 8px; }
+  .aturan ul { padding-left: 20px; font-size: 15px; }
+  .aturan li + li { margin-top: 4px; }
+  .aturan b { color: var(--merah); }
+
+  .tombol {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 13px 22px; border-radius: 8px; border: 0;
+    font-weight: 700; font-size: 15px; transition: transform .08s, background .15s;
+  }
+  .tombol:active { transform: translateY(1px); }
+  .tombol.utama { background: var(--ungu); color: #fff; }
+  .tombol.utama:hover { background: var(--ungu-tua); }
+  .tombol.merah { background: var(--merah); color: #fff; }
+  .tombol.merah:hover { background: #8F1015; }
+  .tombol.polos { background: transparent; color: var(--ungu); border: 1.5px solid var(--garis); }
+  .tombol.polos:hover { background: var(--ungu-muda); }
+  .tombol.polos:disabled { opacity: .35; cursor: not-allowed; }
+  .tombol.lebar { width: 100%; margin-top: 24px; padding: 16px; font-size: 16px; }
+
+  /* ---------- soal ---------- */
+  .navsoal { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 26px; }
+  .navsoal button {
+    width: 34px; height: 34px; border-radius: 6px; border: 1.5px solid var(--garis);
+    background: #fff; font-weight: 600; font-size: 13px; color: var(--abu);
+  }
+  .navsoal button.terjawab { background: var(--ungu-muda); border-color: var(--ungu); color: var(--ungu); }
+  .navsoal button.sekarang { background: var(--ungu); border-color: var(--ungu); color: #fff; }
+
+  .nomor { font-size: 13px; font-weight: 600; color: var(--merah); margin-bottom: 6px; }
+  .pertanyaan { font-size: 21px; font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; max-width: 60ch; }
+  .opsi { margin-top: 22px; display: grid; gap: 10px; }
+  .opsi label {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 16px; background: #fff; border: 1.5px solid var(--garis); border-radius: 10px;
+    cursor: pointer; transition: border-color .12s, background .12s; font-size: 16px;
+  }
+  .opsi label:hover { border-color: var(--ungu); }
+  .opsi input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+  .opsi .huruf {
+    flex: 0 0 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--garis);
+    display: grid; place-items: center; font-weight: 700; font-size: 13px; color: var(--abu);
+  }
+  .opsi label:has(input:checked) { border-color: var(--ungu); background: var(--ungu-muda); }
+  .opsi label:has(input:checked) .huruf { background: var(--ungu); border-color: var(--ungu); color: #fff; }
+
+  .isian input {
+    width: 100%; padding: 14px 16px; font: inherit; font-size: 18px;
+    border: 1.5px solid var(--garis); border-radius: 10px; background: #fff; color: var(--tinta);
+  }
+  .isian input:focus { border-color: var(--ungu); outline: none; box-shadow: 0 0 0 3px var(--ungu-muda); }
+  .petunjuk { margin-top: 10px; font-size: 14px; color: var(--abu); }
+  .petunjuk em { font-style: normal; color: var(--ungu); font-weight: 600; }
+
+  .navigasi { display: flex; justify-content: space-between; gap: 12px; margin-top: 32px; }
+
+  /* ---------- hasil ---------- */
+  .skor {
+    display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center;
+    background: #fff; border: 1.5px solid var(--garis); border-radius: 12px; padding: 24px; margin-top: 24px;
+  }
+  .skor .angka { font-size: 64px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: var(--ungu); }
+  .skor .angka small { font-size: 20px; color: var(--abu); font-weight: 600; letter-spacing: 0; }
+  .skor.dikunci .angka { color: var(--merah); }
+  .status { font-weight: 700; }
+  .status.dikunci { color: var(--merah); }
+  .status.selesai { color: var(--benar); }
+  .meta { color: var(--abu); font-size: 14px; margin-top: 4px; }
+
+  .kirim { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; }
+  .kirim.proses { background: var(--ungu-muda); color: var(--ungu); }
+  .kirim.ok { background: var(--benar-muda); color: var(--benar); }
+  .kirim.gagal { background: var(--merah-muda); color: var(--merah); }
+
+  .rekap { margin-top: 28px; }
+  .rekap h2 { margin-bottom: 12px; }
+  .rekap-item {
+    display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--garis); font-size: 15px;
+  }
+  .rekap-item:last-child { border-bottom: 1px solid var(--garis); }
+  .tanda { flex: 0 0 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+  .tanda.ok { background: var(--benar-muda); color: var(--benar); }
+  .tanda.salah { background: var(--merah-muda); color: var(--merah); }
+  .tanda.kosong { background: #EEE; color: var(--abu); }
+  .rekap-item .ket { color: var(--abu); font-size: 13px; }
+
+  .log { list-style: none; font-size: 14px; }
+  .log li { padding: 8px 0; border-top: 1px solid var(--garis); display: flex; gap: 12px; }
+  .log li:last-child { border-bottom: 1px solid var(--garis); }
+  .log time { flex: 0 0 76px; color: var(--abu); font-variant-numeric: tabular-nums; }
+  .log .kosong-log { color: var(--benar); font-weight: 600; border: 0; }
+
+  /* ---------- overlay pelanggaran ---------- */
+  .tirai {
+    position: fixed; inset: 0; z-index: 100; display: none;
+    background: rgba(179,22,27,.96); color: #fff;
+    align-items: center; justify-content: center; padding: 24px;
+  }
+  .tirai.tampil { display: flex; }
+  .tirai-kotak { max-width: 480px; text-align: center; }
+  .tirai .besar { font-size: clamp(56px, 14vw, 96px); font-weight: 800; letter-spacing: -0.05em; line-height: 1; }
+  .tirai .besar small { font-size: 22px; letter-spacing: 0; font-weight: 600; opacity: .8; }
+  .tirai h2 { margin-top: 16px; font-size: 24px; }
+  .tirai p { margin-top: 8px; opacity: .9; font-size: 16px; }
+  .tirai .tombol { margin-top: 26px; background: #fff; color: var(--merah); }
+  .tirai .tombol:hover { background: #FDEDEE; }
+
+  .tirai.ungu { background: rgba(75,29,110,.96); }
+  .tirai.ungu .tombol { background: #fff; color: var(--ungu); margin-top: 0; }
+  .tirai.ungu .tombol:hover { background: var(--ungu-muda); }
+  .tirai.ungu .tombol.polos-putih { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.5); }
+  .tirai.ungu .tombol.polos-putih:hover { background: rgba(255,255,255,.12); }
+  .dialog-aksi { display: flex; gap: 12px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="kop">
+  <div class="kop-in">
+    <div class="kop-sekolah">SMK Katolik St. Mikael Surakarta<small id="kopJudul">Locked quiz</small></div>
+    <div class="kop-status" id="kopStatus" hidden>
+      <span class="pil" id="pilWaktu"><span class="dot"></span><span id="waktu">00:00</span></span>
+      <span class="pil" id="pilPelanggaran">Violations <span id="pelanggaranTeks">0/3</span></span>
+    </div>
+  </div>
+</header>
+
+<main class="kanvas">
+
+  <!-- ===== MULAI ===== -->
+  <section class="layar aktif" id="layarMulai">
+    <h1 id="judulKuis">Quiz</h1>
+    <p class="pengantar" id="deskripsiKuis"></p>
+
+    <div class="baris">
+      <div class="field">
+        <label for="nama">Full name</label>
+        <input id="nama" type="text" autocomplete="off" placeholder="As written on the attendance list">
+      </div>
+      <div class="field">
+        <label for="kelas">Class</label>
+        <input id="kelas" type="text" autocomplete="off" placeholder="e.g. XI TPM 2">
+      </div>
+    </div>
+
+    <div class="aturan">
+      <h3>Rules during the quiz</h3>
+      <ul>
+        <li>The quiz runs in fullscreen. Do not leave fullscreen mode.</li>
+        <li>Do not switch tabs, open other apps, or minimise the window.</li>
+        <li>Every time you leave this page counts as <b>one violation</b>.</li>
+        <li>After <b><span class="maksPelanggaran">3</span> violations</b>, the quiz locks and your answers are submitted as they are.</li>
+        <li>Questions: <b><span id="infoSoal"></span></b>. Type your fill-in answers; capital letters do not matter.</li>
+        <li>Time limit: <b><span id="durasiTeks"></span> minutes</b>. The quiz is submitted automatically when time runs out.</li>
+      </ul>
+    </div>
+
+    <button class="tombol utama lebar" id="btnMulai">Start the quiz in fullscreen</button>
+  </section>
+
+  <!-- ===== SOAL ===== -->
+  <section class="layar" id="layarSoal">
+    <div class="navsoal" id="navsoal"></div>
+    <div class="nomor" id="nomor"></div>
+    <div class="pertanyaan" id="pertanyaan"></div>
+    <div class="opsi" id="opsi"></div>
+    <div class="navigasi">
+      <button class="tombol polos" id="btnSebelum">Previous</button>
+      <button class="tombol polos" id="btnBerikut">Next</button>
+      <button class="tombol merah" id="btnKumpul" hidden>Submit answers</button>
+    </div>
+  </section>
+
+  <!-- ===== HASIL ===== -->
+  <section class="layar" id="layarHasil">
+    <h1>Quiz results</h1>
+    <div class="kirim" id="statusKirim" hidden></div>
+    <div class="skor" id="skorKotak">
+      <div class="angka"><span id="skorAngka">0</span><small>/100</small></div>
+      <div>
+        <div class="status" id="statusHasil"></div>
+        <div class="meta" id="metaHasil"></div>
+        <div class="meta" id="metaPelanggaran"></div>
+      </div>
+    </div>
+
+    <div class="rekap" id="rekapWrap">
+      <h2>Answer review</h2>
+      <div id="rekapJawaban"></div>
+    </div>
+
+    <div class="rekap">
+      <h2>Violation log</h2>
+      <ul class="log" id="logPelanggaran"></ul>
+    </div>
+
+    <button class="tombol polos lebar" id="btnSalin">Copy summary for the teacher</button>
+  </section>
+</main>
+
+<!-- ===== DIALOG KUMPULKAN ===== -->
+<div class="tirai ungu" id="dialogKumpul" role="dialog" aria-modal="true">
+  <div class="tirai-kotak">
+    <h2 id="dialogJudul">Submit your answers now?</h2>
+    <p id="dialogIsi"></p>
+    <div class="dialog-aksi">
+      <button class="tombol polos-putih" id="btnBatalKumpul">Check again</button>
+      <button class="tombol" id="btnYakinKumpul">Yes, submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OVERLAY PELANGGARAN ===== -->
+<div class="tirai" id="tirai" role="alertdialog" aria-modal="true">
+  <div class="tirai-kotak">
+    <div class="besar"><span id="tiraiHitung">1</span><small> / <span class="maksPelanggaran">3</span></small></div>
+    <h2>You left the quiz page</h2>
+    <p id="tiraiAlasan"></p>
+    <p id="tiraiSisa"></p>
+    <button class="tombol" id="btnKembali">Back to the quiz</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   BANK SOAL — Simple Future, Present Continuous, Past Continuous
+   Format:
+     PG    : { t:"pg", q:"...", p:["A","B","C","D"], j:indeks_benar (mulai 0) }
+     Isian : { t:"isian", q:"... ____ (verb) ...", j:["jawaban benar", "variasi lain"] }
+   Pengecekan isian: tidak peduli huruf besar/kecil, spasi ganda, atau titik di akhir.
+   ========================================================= */
+const BANK_SOAL = [
+{ nama: "Set A", soal: [
+  { t:"pg", q:"I ____ my homework, so I can watch TV now.", p:["finish","finished","have finished","will finish"], j:2 },
+  { t:"pg", q:"She ____ breakfast yet.", p:["doesn't eat","hasn't eaten","didn't ate","won't eat"], j:1 },
+  { t:"pg", q:"____ you ever ____ Bali?", p:["Do – visit","Have – visited","Did – visited","Were – visiting"], j:1 },
+  { t:"pg", q:"They ____ in Solo since 2018.", p:["live","lived","have lived","will live"], j:2 },
+  { t:"pg", q:"My father ____ at this factory for ten years.", p:["works","worked","has worked","will work"], j:2 },
+  { t:"pg", q:"Choose the correct sentence.", p:["She have finished her work.","She has finish her work.","She has finished her work.","She is finished her work."], j:2 },
+  { t:"pg", q:"I saw that film ____.", p:["since last week","for last week","last week","yet"], j:2 },
+  { t:"pg", q:"Which word goes with a POINT of time?", p:["for","since","yet","already"], j:1 },
+  { t:"pg", q:"Which sentence is in the present perfect tense?", p:["I ate nasi goreng.","I had eaten nasi goreng.","I have eaten nasi goreng.","I was eating nasi goreng."], j:2 },
+  { t:"pg", q:"Find the mistake: \"I have eaten breakfast yesterday.\"", p:["I","have eaten","breakfast","yesterday"], j:3 },
+  { t:"pg", q:"\"Have you finished the report?\" Choose the correct short answer.", p:["Yes, I have.","Yes, I do.","Yes, I did.","Yes, I am."], j:0 },
+  { t:"pg", q:"Where does YET usually go in a sentence?", p:["at the beginning","after the subject","between have and V3","at the end"], j:3 },
+  { t:"pg", q:"He ____ his motorcycle. That is why it looks so clean.", p:["washes","washed","has washed","will wash"], j:2 },
+  { t:"pg", q:"Find the mistake: \"She have gone to the market.\"", p:["She","have","gone","to the market"], j:1 },
+  { t:"pg", q:"Choose the correct form after HAVE.", p:["have saw","have see","have seen","have seeing"], j:2 },
+  { t:"pg", q:"By 6 p.m. tonight, I ____ all my homework.", p:["finish","will finish","will have finished","have finished"], j:2 },
+  { t:"pg", q:"By next year, she ____ from this school.", p:["graduates","graduated","will have graduated","has graduated"], j:2 },
+  { t:"pg", q:"____ they ____ the project by Friday?", p:["Do – complete","Will – have completed","Have – completed","Did – complete"], j:1 },
+  { t:"pg", q:"By the time you arrive, we ____ dinner.", p:["already eat","have already eaten","will have already eaten","had already eaten"], j:2 },
+  { t:"pg", q:"He ____ the machine by tomorrow morning; the parts are missing.", p:["won't have repaired","doesn't have repaired","will not repaired","hasn't repaired"], j:0 },
+  { t:"pg", q:"Which sentence is in the future perfect tense?", p:["I have written the report.","I had written the report.","I will have written the report.","I will be writing the report."], j:2 },
+  { t:"pg", q:"Find the mistake: \"By 5 p.m. she will has finished the job.\"", p:["By 5 p.m.","she","will has","finished"], j:2 },
+  { t:"pg", q:"Which preposition is the signal for the future perfect?", p:["at","by","since","during"], j:1 },
+  { t:"pg", q:"\"Will you have packed your bags before we leave?\" Choose the correct short answer.", p:["Yes, I will.","Yes, I have.","Yes, I do.","Yes, I did."], j:0 },
+  { t:"pg", q:"\"At 5 p.m. I will be writing the report.\" What does this mean?", p:["The report is finished before 5 p.m.","The report is still being written at 5 p.m.","The report was written yesterday.","The report has never been written."], j:1 },
+  { t:"pg", q:"\"By 5 p.m. I will have written the report.\" What does this mean?", p:["The report will be finished before 5 p.m.","The report will still be in progress at 5 p.m.","The report is finished now.","The report was finished yesterday."], j:0 },
+  { t:"pg", q:"Choose the correct form after WILL HAVE.", p:["will have took","will have take","will have taken","will have taking"], j:2 },
+  { t:"pg", q:"In two years' time, I ____ how to weld properly.", p:["learn","learned","will have learned","have learned"], j:2 },
+  { t:"pg", q:"Choose the correct sentence.", p:["By 2030 this factory will have produce a million parts.","By 2030 this factory will has produced a million parts.","By 2030 this factory will have produced a million parts.","By 2030 this factory will have producing a million parts."], j:2 },
+  { t:"pg", q:"Which sentence uses the present perfect correctly?", p:["I have seen him two days ago.","I have seen him three times.","I have saw him three times.","I has seen him three times."], j:1 },
+  { t:"isian", q:"I ____ (finish) my report, so I am free now.", j:["have finished"] },
+  { t:"isian", q:"She ____ (not / eat) her lunch yet.", j:["hasn't eaten","has not eaten"] },
+  { t:"isian", q:"____ (you / ever / visit) Jakarta?", j:["have you ever visited"] },
+  { t:"isian", q:"We ____ (live) in this city since 2015.", j:["have lived"] },
+  { t:"isian", q:"He ____ (work) at the workshop for three years.", j:["has worked"] },
+  { t:"isian", q:"They ____ (just / arrive) at the station.", j:["have just arrived"] },
+  { t:"isian", q:"I ____ (never / see) snow in my life.", j:["have never seen"] },
+  { t:"isian", q:"____ (she / already / send) the email?", j:["has she already sent"] },
+  { t:"isian", q:"By 8 p.m. tonight, I ____ (finish) my homework.", j:["will have finished"] },
+  { t:"isian", q:"By next June, she ____ (graduate) from this school.", j:["will have graduated"] },
+  { t:"isian", q:"By the time you come, we ____ (already / eat) dinner.", j:["will have already eaten"] },
+  { t:"isian", q:"They ____ (not / complete) the building by December.", j:["won't have completed","will not have completed"] },
+  { t:"isian", q:"____ (he / repair) the machine by tomorrow?", j:["will he have repaired"] },
+  { t:"isian", q:"In five years' time, I ____ (save) enough money for a car.", j:["will have saved"] },
+  { t:"isian", q:"By the end of this month, we ____ (learn) four new tenses.", j:["will have learned","will have learnt"] }
+]},
+
+{ nama: "Set B", soal: [
+  { t:"pg", q:"We ____ the classroom, so it looks very clean now.", p:["clean","cleaned","have cleaned","will clean"], j:2 },
+  { t:"pg", q:"He ____ his tools yet.", p:["doesn't return","hasn't returned","didn't returned","won't return"], j:1 },
+  { t:"pg", q:"____ she ever ____ an aeroplane?", p:["Does – fly","Has – flown","Did – flown","Was – flying"], j:1 },
+  { t:"pg", q:"I ____ at this school since Grade 10.", p:["study","studied","have studied","will study"], j:2 },
+  { t:"pg", q:"My mother ____ in that shop for five years.", p:["works","worked","has worked","will work"], j:2 },
+  { t:"pg", q:"Choose the correct sentence.", p:["They has arrived at the airport.","They have arrive at the airport.","They have arrived at the airport.","They are arrived at the airport."], j:2 },
+  { t:"pg", q:"She went to Bandung ____.", p:["since two days","for two days ago","two days ago","yet"], j:2 },
+  { t:"pg", q:"Which word goes with a LENGTH of time?", p:["since","for","yet","just"], j:1 },
+  { t:"pg", q:"Which sentence is in the present perfect tense?", p:["He wrote a letter.","He had written a letter.","He has written a letter.","He was writing a letter."], j:2 },
+  { t:"pg", q:"Find the mistake: \"They have arrived last night.\"", p:["They","have arrived","last","night"], j:2 },
+  { t:"pg", q:"\"Has she called you?\" Choose the correct short answer.", p:["No, she hasn't.","No, she doesn't.","No, she didn't.","No, she isn't."], j:0 },
+  { t:"pg", q:"Where does ALREADY usually go in a sentence?", p:["at the beginning","between have/has and V3","at the end","before the subject"], j:1 },
+  { t:"pg", q:"The floor is wet. Someone ____ water on it.", p:["spills","spilled","has spilled","will spill"], j:2 },
+  { t:"pg", q:"Find the mistake: \"He have finished his work.\"", p:["He","have","finished","his work"], j:1 },
+  { t:"pg", q:"Choose the correct form after HAS.", p:["has wrote","has write","has written","has writing"], j:2 },
+  { t:"pg", q:"By 9 p.m. tonight, we ____ the whole lesson.", p:["review","will review","will have reviewed","have reviewed"], j:2 },
+  { t:"pg", q:"By next month, he ____ enough money for a new laptop.", p:["saves","saved","will have saved","has saved"], j:2 },
+  { t:"pg", q:"____ you ____ your bags before the bus comes?", p:["Do – pack","Will – have packed","Have – packed","Did – pack"], j:1 },
+  { t:"pg", q:"By the time the guests come, mother ____ all the food.", p:["already cooks","has already cooked","will have already cooked","had already cooked"], j:2 },
+  { t:"pg", q:"They ____ the road by next week; the work is too big.", p:["won't have finished","don't have finished","will not finished","haven't finished"], j:0 },
+  { t:"pg", q:"Which sentence is in the future perfect tense?", p:["She has cleaned the room.","She had cleaned the room.","She will have cleaned the room.","She will be cleaning the room."], j:2 },
+  { t:"pg", q:"Find the mistake: \"By Monday they will have finish the report.\"", p:["By Monday","they","will have","finish"], j:3 },
+  { t:"pg", q:"Which time expression is the signal for the future perfect?", p:["at 5 p.m.","by 5 p.m.","since 5 p.m.","from 5 p.m."], j:1 },
+  { t:"pg", q:"\"Will they have arrived by noon?\" Choose the correct short answer.", p:["Yes, they will.","Yes, they have.","Yes, they do.","Yes, they did."], j:0 },
+  { t:"pg", q:"\"At 3 p.m. she will be cooking.\" What does this mean?", p:["The cooking is finished before 3 p.m.","The cooking is still going on at 3 p.m.","She cooked yesterday.","She never cooks."], j:1 },
+  { t:"pg", q:"\"By 3 p.m. she will have cooked.\" What does this mean?", p:["The cooking will be finished before 3 p.m.","The cooking will still be going on at 3 p.m.","She is cooking now.","She cooked last year."], j:0 },
+  { t:"pg", q:"Choose the correct form after WILL HAVE.", p:["will have did","will have do","will have done","will have doing"], j:2 },
+  { t:"pg", q:"In three years' time, I ____ my studies at this school.", p:["complete","completed","will have completed","have completed"], j:2 },
+  { t:"pg", q:"Choose the correct sentence.", p:["By July we will have move to a new house.","By July we will has moved to a new house.","By July we will have moved to a new house.","By July we will have moving to a new house."], j:2 },
+  { t:"pg", q:"Which sentence uses the present perfect correctly?", p:["She has visited Bali in 2019.","She has visited Bali twice.","She have visited Bali twice.","She has visit Bali twice."], j:1 },
+  { t:"isian", q:"We ____ (clean) the workshop, so it is tidy now.", j:["have cleaned"] },
+  { t:"isian", q:"He ____ (not / return) my book yet.", j:["hasn't returned","has not returned"] },
+  { t:"isian", q:"____ (you / ever / eat) sushi?", j:["have you ever eaten"] },
+  { t:"isian", q:"She ____ (study) in this school since 2023.", j:["has studied"] },
+  { t:"isian", q:"My uncle ____ (drive) a truck for fifteen years.", j:["has driven"] },
+  { t:"isian", q:"The bus ____ (just / leave) the station.", j:["has just left"] },
+  { t:"isian", q:"I ____ (never / ride) a horse.", j:["have never ridden"] },
+  { t:"isian", q:"____ (they / already / finish) the exercise?", j:["have they already finished"] },
+  { t:"isian", q:"By 7 p.m. tonight, she ____ (cook) dinner.", j:["will have cooked"] },
+  { t:"isian", q:"By next Monday, we ____ (finish) this unit.", j:["will have finished"] },
+  { t:"isian", q:"By the time you wake up, I ____ (already / leave).", j:["will have already left"] },
+  { t:"isian", q:"They ____ (not / build) the bridge by next year.", j:["won't have built","will not have built"] },
+  { t:"isian", q:"____ (she / send) the report by Friday?", j:["will she have sent"] },
+  { t:"isian", q:"In ten years' time, my brother ____ (become) an engineer.", j:["will have become"] },
+  { t:"isian", q:"By the end of the semester, we ____ (read) five books.", j:["will have read"] }
+]},
+
+{ nama: "Set C", soal: [
+  { t:"pg", q:"They ____ the machine, so it works well now.", p:["repair","repaired","have repaired","will repair"], j:2 },
+  { t:"pg", q:"The teacher ____ the test papers yet.", p:["doesn't check","hasn't checked","didn't checked","won't check"], j:1 },
+  { t:"pg", q:"____ he ever ____ in a competition?", p:["Does – join","Has – joined","Did – joined","Was – joining"], j:1 },
+  { t:"pg", q:"We ____ each other since primary school.", p:["know","knew","have known","will know"], j:2 },
+  { t:"pg", q:"She ____ English for six years.", p:["learns","learned","has learned","will learn"], j:2 },
+  { t:"pg", q:"Choose the correct sentence.", p:["I has done my homework.","I have do my homework.","I have done my homework.","I am done my homework."], j:2 },
+  { t:"pg", q:"He bought that motorcycle ____.", p:["since one year","for one year ago","one year ago","yet"], j:2 },
+  { t:"pg", q:"Complete: \"I have studied here ____ 2019.\"", p:["for","since","during","from"], j:1 },
+  { t:"pg", q:"Which sentence is in the present perfect tense?", p:["We cleaned the room.","We had cleaned the room.","We have cleaned the room.","We were cleaning the room."], j:2 },
+  { t:"pg", q:"Find the mistake: \"She has called me two hours ago.\"", p:["She","has called","two hours","ago"], j:1 },
+  { t:"pg", q:"\"Have they arrived?\" Choose the correct short answer.", p:["Yes, they have.","Yes, they are.","Yes, they did.","Yes, they do."], j:0 },
+  { t:"pg", q:"Where does JUST usually go in a sentence?", p:["at the end","between have/has and V3","at the beginning","before the subject"], j:1 },
+  { t:"pg", q:"The room is dark. Someone ____ off the lamp.", p:["turns","turned","has turned","will turn"], j:2 },
+  { t:"pg", q:"Find the mistake: \"My friends has gone home.\"", p:["My friends","has","gone","home"], j:1 },
+  { t:"pg", q:"Choose the correct form after HAVE.", p:["have drank","have drink","have drunk","have drinking"], j:2 },
+  { t:"pg", q:"By 10 p.m. tonight, they ____ the whole house.", p:["clean","will clean","will have cleaned","have cleaned"], j:2 },
+  { t:"pg", q:"By 2028, my sister ____ her university studies.", p:["completes","completed","will have completed","has completed"], j:2 },
+  { t:"pg", q:"____ we ____ the practice before the competition starts?", p:["Do – finish","Will – have finished","Have – finished","Did – finish"], j:1 },
+  { t:"pg", q:"By the time the film ends, the children ____ asleep.", p:["already fall","have already fallen","will have already fallen","had already fallen"], j:2 },
+  { t:"pg", q:"He ____ the drawing by Thursday; he has too much work.", p:["won't have finished","doesn't have finished","will not finished","hasn't finished"], j:0 },
+  { t:"pg", q:"Which sentence is in the future perfect tense?", p:["They have built the house.","They had built the house.","They will have built the house.","They will be building the house."], j:2 },
+  { t:"pg", q:"Find the mistake: \"By noon he will have ate his lunch.\"", p:["By noon","he","will have","ate"], j:3 },
+  { t:"pg", q:"Which sentence needs the future perfect?", p:["I will call you at 8 p.m.","By 8 p.m. I will have called you.","I called you at 8 p.m.","I am calling you at 8 p.m."], j:1 },
+  { t:"pg", q:"\"Will he have left by then?\" Choose the correct short answer.", p:["No, he won't.","No, he hasn't.","No, he doesn't.","No, he didn't."], j:0 },
+  { t:"pg", q:"\"At 9 a.m. they will be working.\" What does this mean?", p:["The work is finished before 9 a.m.","The work is in progress at 9 a.m.","They worked yesterday.","They never work."], j:1 },
+  { t:"pg", q:"\"By 9 a.m. they will have worked for two hours.\" What does this mean?", p:["Two hours of work will be complete by 9 a.m.","They start work at 9 a.m.","They finished work yesterday.","They have not started yet at 10 a.m."], j:0 },
+  { t:"pg", q:"Choose the correct form after WILL HAVE.", p:["will have gave","will have give","will have given","will have giving"], j:2 },
+  { t:"pg", q:"In four years' time, we ____ this school.", p:["leave","left","will have left","have left"], j:2 },
+  { t:"pg", q:"Choose the correct sentence.", p:["By Friday I will have send the letter.","By Friday I will has sent the letter.","By Friday I will have sent the letter.","By Friday I will have sending the letter."], j:2 },
+  { t:"pg", q:"Which sentence uses the present perfect correctly?", p:["We have finished the project last week.","We have finished the project.","We has finished the project.","We have finish the project."], j:1 },
+  { t:"isian", q:"They ____ (repair) the roof, so it doesn't leak now.", j:["have repaired"] },
+  { t:"isian", q:"The teacher ____ (not / mark) our tests yet.", j:["hasn't marked","has not marked"] },
+  { t:"isian", q:"____ (you / ever / join) a competition?", j:["have you ever joined"] },
+  { t:"isian", q:"I ____ (know) him since we were children.", j:["have known"] },
+  { t:"isian", q:"She ____ (teach) at this school for eight years.", j:["has taught"] },
+  { t:"isian", q:"My father ____ (just / come) home from work.", j:["has just come"] },
+  { t:"isian", q:"We ____ (never / travel) abroad.", j:["have never travelled","have never traveled"] },
+  { t:"isian", q:"____ (he / already / pay) the bill?", j:["has he already paid"] },
+  { t:"isian", q:"By 9 p.m. tonight, I ____ (read) three chapters.", j:["will have read"] },
+  { t:"isian", q:"By next year, they ____ (open) a new workshop.", j:["will have opened"] },
+  { t:"isian", q:"By the time we arrive, the show ____ (already / start).", j:["will have already started"] },
+  { t:"isian", q:"She ____ (not / finish) the drawing by tomorrow.", j:["won't have finished","will not have finished"] },
+  { t:"isian", q:"____ (they / clean) the hall before the ceremony?", j:["will they have cleaned"] },
+  { t:"isian", q:"In two years' time, I ____ (get) my driving licence.", j:["will have got","will have gotten"] },
+  { t:"isian", q:"By the end of this week, we ____ (do) eight exercises.", j:["will have done"] }
+]},
+
+{ nama: "Set D", soal: [
+  { t:"pg", q:"She ____ the letter, so the postman can take it now.", p:["writes","wrote","has written","will write"], j:2 },
+  { t:"pg", q:"The workers ____ their lunch yet.", p:["don't have","haven't had","didn't had","won't have"], j:1 },
+  { t:"pg", q:"____ you ever ____ a train?", p:["Do – take","Have – taken","Did – taken","Were – taking"], j:1 },
+  { t:"pg", q:"He ____ this motorcycle since last year.", p:["has","had","has had","will have"], j:2 },
+  { t:"pg", q:"They ____ in that village for twenty years.", p:["live","lived","have lived","will live"], j:2 },
+  { t:"pg", q:"Choose the correct sentence.", p:["The bus have arrived.","The bus has arrive.","The bus has arrived.","The bus is arrived."], j:2 },
+  { t:"pg", q:"I met him ____.", p:["since last month","for last month","last month","yet"], j:2 },
+  { t:"pg", q:"Complete: \"He has worked here ____ ten years.\"", p:["since","for","from","during"], j:1 },
+  { t:"pg", q:"Which sentence is in the present perfect tense?", p:["I saw the film.","I had seen the film.","I have seen the film.","I was seeing the film."], j:2 },
+  { t:"pg", q:"Find the mistake: \"We have visited Borobudur in 2020.\"", p:["We","have visited","Borobudur","in 2020"], j:3 },
+  { t:"pg", q:"\"Has the class started?\" Choose the correct short answer.", p:["Yes, it has.","Yes, it is.","Yes, it did.","Yes, it does."], j:0 },
+  { t:"pg", q:"Which sentence puts YET in the correct place?", p:["Yet I haven't eaten.","I haven't yet eaten it.","I haven't eaten yet.","I yet haven't eaten."], j:2 },
+  { t:"pg", q:"The garden looks beautiful. Somebody ____ the flowers.", p:["plants","planted","has planted","will plant"], j:2 },
+  { t:"pg", q:"Find the mistake: \"The students has finished the test.\"", p:["The students","has","finished","the test"], j:1 },
+  { t:"pg", q:"Choose the correct form after HAS.", p:["has spoke","has speak","has spoken","has speaking"], j:2 },
+  { t:"pg", q:"By 8 a.m. tomorrow, the students ____ the yard.", p:["sweep","will sweep","will have swept","have swept"], j:2 },
+  { t:"pg", q:"By 2035, this company ____ a thousand workers.", p:["employs","employed","will have employed","has employed"], j:2 },
+  { t:"pg", q:"____ she ____ the room before the guests come?", p:["Does – tidy","Will – have tidied","Has – tidied","Did – tidy"], j:1 },
+  { t:"pg", q:"By the time the bell rings, we ____ all the questions.", p:["already answer","have already answered","will have already answered","had already answered"], j:2 },
+  { t:"pg", q:"I ____ the book by Sunday; it is very long.", p:["won't have read","don't have read","will not read it have","haven't read"], j:0 },
+  { t:"pg", q:"Which sentence is in the future perfect tense?", p:["He has sent the parcel.","He had sent the parcel.","He will have sent the parcel.","He will be sending the parcel."], j:2 },
+  { t:"pg", q:"Find the mistake: \"By Sunday we will have went to Jakarta.\"", p:["By Sunday","we","will have","went"], j:3 },
+  { t:"pg", q:"Which sentence uses the future perfect correctly?", p:["By 6 p.m. I will have arrived.","At 6 p.m. I will have arrived slowly.","By 6 p.m. I will arriving.","By 6 p.m. I have arrive."], j:0 },
+  { t:"pg", q:"\"Will you have finished by Friday?\" Choose the correct short answer.", p:["Yes, I will.","Yes, I have.","Yes, I did.","Yes, I am."], j:0 },
+  { t:"pg", q:"Which tense do we use for an action IN PROGRESS at a future moment?", p:["present perfect","past perfect","future continuous","future perfect"], j:2 },
+  { t:"pg", q:"Which tense do we use for an action COMPLETED before a future moment?", p:["present perfect","past perfect","future continuous","future perfect"], j:3 },
+  { t:"pg", q:"Choose the correct form after WILL HAVE.", p:["will have wrote","will have write","will have written","will have writing"], j:2 },
+  { t:"pg", q:"In six months' time, they ____ the new building.", p:["open","opened","will have opened","have opened"], j:2 },
+  { t:"pg", q:"Choose the correct sentence.", p:["By tomorrow he will have repair the car.","By tomorrow he will has repaired the car.","By tomorrow he will have repaired the car.","By tomorrow he will have repairing the car."], j:2 },
+  { t:"pg", q:"Which sentence uses the present perfect correctly?", p:["They have gone to Bali yesterday.","They have gone to Bali.","They has gone to Bali.","They have go to Bali."], j:1 },
+  { t:"isian", q:"She ____ (write) the letter, so we can send it now.", j:["has written"] },
+  { t:"isian", q:"The workers ____ (not / have) their lunch yet.", j:["haven't had","have not had"] },
+  { t:"isian", q:"____ (you / ever / take) a train?", j:["have you ever taken"] },
+  { t:"isian", q:"He ____ (own) this motorcycle since last year.", j:["has owned"] },
+  { t:"isian", q:"They ____ (stay) in that village for twenty years.", j:["have stayed"] },
+  { t:"isian", q:"The train ____ (just / arrive) at the platform.", j:["has just arrived"] },
+  { t:"isian", q:"I ____ (never / break) a bone in my life.", j:["have never broken"] },
+  { t:"isian", q:"____ (she / already / call) her mother?", j:["has she already called"] },
+  { t:"isian", q:"By 8 a.m. tomorrow, we ____ (sweep) the whole yard.", j:["will have swept"] },
+  { t:"isian", q:"By December, he ____ (pass) his driving test.", j:["will have passed"] },
+  { t:"isian", q:"By the time the bell rings, I ____ (already / answer) everything.", j:["will have already answered"] },
+  { t:"isian", q:"They ____ (not / finish) the wall by Sunday.", j:["won't have finished","will not have finished"] },
+  { t:"isian", q:"____ (you / pack) everything before the bus leaves?", j:["will you have packed"] },
+  { t:"isian", q:"In one year's time, she ____ (start) her own business.", j:["will have started"] },
+  { t:"isian", q:"By the end of the day, the team ____ (build) the frame.", j:["will have built"] }
+]},
+
+{ nama: "Set E", soal: [
+  { t:"pg", q:"He ____ his room, so his mother is happy now.", p:["tidies","tidied","has tidied","will tidy"], j:2 },
+  { t:"pg", q:"I ____ the new film yet.", p:["don't see","haven't seen","didn't saw","won't see"], j:1 },
+  { t:"pg", q:"____ they ever ____ to Bandung?", p:["Do – go","Have – been","Did – been","Were – going"], j:1 },
+  { t:"pg", q:"She ____ this bag since her birthday.", p:["uses","used","has used","will use"], j:2 },
+  { t:"pg", q:"We ____ in this class for one semester.", p:["are","were","have been","will be"], j:2 },
+  { t:"pg", q:"Choose the correct sentence.", p:["My father have repaired the fan.","My father has repair the fan.","My father has repaired the fan.","My father is repaired the fan."], j:2 },
+  { t:"pg", q:"They finished the project ____.", p:["since three days","for three days ago","three days ago","yet"], j:2 },
+  { t:"pg", q:"Complete: \"She has lived here ____ March.\"", p:["for","since","during","by"], j:1 },
+  { t:"pg", q:"Which sentence is in the present perfect tense?", p:["He read the book.","He had read the book.","He has read the book.","He was reading the book."], j:2 },
+  { t:"pg", q:"Find the mistake: \"I have met her last Sunday.\"", p:["I","have met","her","last Sunday"], j:3 },
+  { t:"pg", q:"\"Have you cleaned the tools?\" Choose the correct short answer.", p:["No, I haven't.","No, I don't.","No, I didn't.","No, I amn't."], j:0 },
+  { t:"pg", q:"Which sentence puts ALREADY in the correct place?", p:["I already have eaten.","I have eaten already the rice.","I have already eaten.","Already I have eaten."], j:2 },
+  { t:"pg", q:"The windows are shiny. Someone ____ them.", p:["cleans","cleaned","has cleaned","will clean"], j:2 },
+  { t:"pg", q:"Find the mistake: \"She have lost her keys.\"", p:["She","have","lost","her keys"], j:1 },
+  { t:"pg", q:"Choose the correct form after HAVE.", p:["have broke","have break","have broken","have breaking"], j:2 },
+  { t:"pg", q:"By 7 p.m. tonight, my mother ____ the clothes.", p:["irons","will iron","will have ironed","has ironed"], j:2 },
+  { t:"pg", q:"By next semester, we ____ all the tenses.", p:["study","studied","will have studied","have studied"], j:2 },
+  { t:"pg", q:"____ he ____ the report before the meeting?", p:["Does – print","Will – have printed","Has – printed","Did – print"], j:1 },
+  { t:"pg", q:"By the time the guests leave, we ____ everything.", p:["already prepare","have already prepared","will have already prepared","had already prepared"], j:2 },
+  { t:"pg", q:"She ____ the exercise by tonight; there are too many questions.", p:["won't have finished","doesn't have finished","will not finished","hasn't finished"], j:0 },
+  { t:"pg", q:"Which sentence is in the future perfect tense?", p:["We have painted the wall.","We had painted the wall.","We will have painted the wall.","We will be painting the wall."], j:2 },
+  { t:"pg", q:"Find the mistake: \"By 8 p.m. she will have take a bath.\"", p:["By 8 p.m.","she","will have","take"], j:3 },
+  { t:"pg", q:"Which sentence needs the future perfect?", p:["I will study at 8 p.m.","By 8 p.m. I will have studied for two hours.","At 8 p.m. I will be studying.","I studied at 8 p.m."], j:1 },
+  { t:"pg", q:"\"Will they have arrived before dark?\" Choose the correct short answer.", p:["Yes, they will.","Yes, they have.","Yes, they are.","Yes, they did."], j:0 },
+  { t:"pg", q:"Which words are signals for the PRESENT PERFECT?", p:["yesterday, ago, last week","ever, never, since, for","by, by the time","while, when, at that moment"], j:1 },
+  { t:"pg", q:"Which words are signals for the FUTURE PERFECT?", p:["yesterday, ago","ever, never","by, by the time, in two years' time","while, as, when"], j:2 },
+  { t:"pg", q:"Choose the correct form after WILL HAVE.", p:["will have ate","will have eat","will have eaten","will have eating"], j:2 },
+  { t:"pg", q:"In three years' time, my cousin ____ from university.", p:["graduates","graduated","will have graduated","has graduated"], j:2 },
+  { t:"pg", q:"Choose the correct sentence.", p:["By March they will have build the workshop.","By March they will has built the workshop.","By March they will have built the workshop.","By March they will have building the workshop."], j:2 },
+  { t:"pg", q:"Which sentence uses the present perfect correctly?", p:["He has finished it two days ago.","He has finished it already.","He have finished it already.","He has finish it already."], j:1 },
+  { t:"isian", q:"He ____ (tidy) his room, so it looks nice now.", j:["has tidied"] },
+  { t:"isian", q:"I ____ (not / watch) that film yet.", j:["haven't watched","have not watched"] },
+  { t:"isian", q:"____ (they / ever / be) to Bandung?", j:["have they ever been"] },
+  { t:"isian", q:"She ____ (use) this bag since her birthday.", j:["has used"] },
+  { t:"isian", q:"We ____ (be) in this class for one semester.", j:["have been"] },
+  { t:"isian", q:"The teacher ____ (just / explain) the lesson.", j:["has just explained"] },
+  { t:"isian", q:"My father ____ (never / fly) in a plane.", j:["has never flown"] },
+  { t:"isian", q:"____ (you / already / do) the exercise?", j:["have you already done"] },
+  { t:"isian", q:"By 7 p.m. tonight, my mother ____ (iron) all the clothes.", j:["will have ironed"] },
+  { t:"isian", q:"By next semester, we ____ (study) all the tenses.", j:["will have studied"] },
+  { t:"isian", q:"By the time the guests leave, we ____ (already / clean) the hall.", j:["will have already cleaned"] },
+  { t:"isian", q:"He ____ (not / repair) the machine by Friday.", j:["won't have repaired","will not have repaired"] },
+  { t:"isian", q:"____ (she / print) the report before the meeting?", j:["will she have printed"] },
+  { t:"isian", q:"In two years' time, I ____ (finish) my studies here.", j:["will have finished"] },
+  { t:"isian", q:"By tomorrow evening, they ____ (paint) the whole fence.", j:["will have painted"] }
+]}
+];
+
+/* =========================================================
+   KONFIGURASI — ubah bagian ini saja
+   ========================================================= */
+const KONFIG = {
+  judul: "Quiz 2 — Present Perfect & Future Perfect",
+  deskripsi: "Present perfect and future perfect. Each student gets one of five question sets at random.",
+  durasiMenit: 60,
+  maksPelanggaran: 3,      // setelah ini kuis dikunci otomatis
+  acakPaket: true,         // siswa mendapat salah satu paket secara acak
+  acakSoal: true,          // urutan soal diacak
+  acakPilihan: true,       // urutan opsi pilihan ganda diacak
+  tampilkanRincian: true,  // tampilkan benar/salah per soal di layar hasil
+  tampilkanKunci: false,   // tampilkan jawaban yang benar di layar hasil
+  // URL Web App dari Google Apps Script (lihat PANDUAN.md). Kosongkan jika tidak dipakai.
+  sheetUrl: "https://script.google.com/macros/s/AKfycbyW07q6I5vUJ-KHpArJIASrRth0BjsAQ8gxsVGKkgs0ZVI2e30PsEBXqpHuZvshglhZgg/exec",  // <-- PASTE your Google Apps Script Web App URL here
+  paket: BANK_SOAL
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const S = {
+  mulai: false, selesai: false,
+  soal: [], jawaban: [], indeks: 0,
+  pelanggaran: [], sisaDetik: KONFIG.durasiMenit * 60,
+  timer: null, terakhirPelanggaran: 0, overlayTerbuka: false
+};
+
+const $ = id => document.getElementById(id);
+const huruf = "ABCDEFGH";
+const pad = n => String(n).padStart(2, "0");
+const fmtWaktu = d => `${pad(Math.floor(d / 60))}:${pad(d % 60)}`;
+const jamSekarang = () => new Date().toLocaleTimeString("id-ID", { hour12: false });
+
+/* =========================================================
+   INISIALISASI
+   ========================================================= */
+$("judulKuis").textContent = KONFIG.judul;
+$("kopJudul").textContent = KONFIG.judul;
+$("deskripsiKuis").textContent = KONFIG.deskripsi;
+$("durasiTeks").textContent = KONFIG.durasiMenit;
+document.querySelectorAll(".maksPelanggaran").forEach(el => el.textContent = KONFIG.maksPelanggaran);
+$("pelanggaranTeks").textContent = `0/${KONFIG.maksPelanggaran}`;
+$("waktu").textContent = fmtWaktu(S.sisaDetik);
+
+const acak = a => { for (let i = a.length - 1; i > 0; i--) { const k = Math.floor(Math.random() * (i + 1)); [a[i], a[k]] = [a[k], a[i]]; } return a; };
+
+const iPaket = KONFIG.acakPaket ? Math.floor(Math.random() * KONFIG.paket.length) : 0;
+S.paket = KONFIG.paket[iPaket].nama;
+S.soal = KONFIG.paket[iPaket].soal.map((s, i) => {
+  const soal = { ...s, asli: i };
+  if (s.t === "pg" && KONFIG.acakPilihan) {
+    const urut = acak(s.p.map((_, k) => k));
+    soal.p = urut.map(k => s.p[k]);
+    soal.j = urut.indexOf(s.j);
+  }
+  return soal;
+});
+if (KONFIG.acakSoal) acak(S.soal);
+S.jawaban = S.soal.map(() => null);
+
+const nPG = S.soal.filter(s => s.t === "pg").length, nIsian = S.soal.length - nPG;
+$("infoSoal").textContent = `${S.soal.length} questions: ${nPG} multiple choice, ${nIsian} fill in the blank`;
+$("kopJudul").textContent = `${KONFIG.judul} · ${S.paket}`;
+
+const terjawab = i => S.jawaban[i] !== null && String(S.jawaban[i]).trim() !== "";
+const norm = s => String(s ?? "").toLowerCase().replace(/[\u2019\u2018]/g, "'").replace(/[.!?]+$/, "").replace(/\s+/g, " ").trim();
+const benarkah = i => {
+  const s = S.soal[i], j = S.jawaban[i];
+  if (!terjawab(i)) return false;
+  return s.t === "pg" ? j === s.j : s.j.some(k => norm(k) === norm(j));
+};
+
+/* =========================================================
+   MULAI
+   ========================================================= */
+$("btnMulai").addEventListener("click", async () => {
+  const nama = $("nama").value.trim(), kelas = $("kelas").value.trim();
+  if (!nama || !kelas) { alert("Please fill in your name and class first."); return; }
+  S.nama = nama; S.kelas = kelas; S.waktuMulai = new Date();
+
+  await mintaLayarPenuh();
+  S.mulai = true;
+  tampilkan("layarSoal");
+  $("kopStatus").hidden = false;
+  renderSoal();
+  S.timer = setInterval(detak, 1000);
+});
+
+async function mintaLayarPenuh() {
+  const el = document.documentElement;
+  try { await (el.requestFullscreen || el.webkitRequestFullscreen).call(el); } catch (e) {}
+}
+const dalamLayarPenuh = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+
+function detak() {
+  S.sisaDetik--;
+  $("waktu").textContent = fmtWaktu(S.sisaDetik);
+  if (S.sisaDetik <= 60) $("pilWaktu").classList.add("bahaya");
+  if (S.sisaDetik <= 0) selesaikan("Time is up");
+}
+
+/* =========================================================
+   PENGAWASAN
+   ========================================================= */
+function catatPelanggaran(alasan) {
+  if (!S.mulai || S.selesai || S.overlayTerbuka || S.dialogTerbuka) return;
+  const kini = Date.now();
+  if (kini - S.terakhirPelanggaran < 1500) return;   // blur + visibilitychange sering muncul bersamaan
+  S.terakhirPelanggaran = kini;
+
+  S.pelanggaran.push({ jam: jamSekarang(), alasan, soal: S.indeks + 1 });
+  const n = S.pelanggaran.length;
+  kirimKeSheet({ jenis: "pelanggaran", paket: S.paket, nama: S.nama, kelas: S.kelas, jam: jamSekarang(),
+                 alasan, soal: S.indeks + 1, urutan: n });
+  $("pelanggaranTeks").textContent = `${n}/${KONFIG.maksPelanggaran}`;
+  $("pilPelanggaran").classList.add("bahaya");
+
+  if (n >= KONFIG.maksPelanggaran) { selesaikan("Locked due to violations"); return; }
+
+  S.overlayTerbuka = true;
+  $("tiraiHitung").textContent = n;
+  $("tiraiAlasan").textContent = alasan + ".";
+  const sisa = KONFIG.maksPelanggaran - n;
+  $("tiraiSisa").textContent = sisa === 1
+    ? "One more violation and the quiz will be locked."
+    : `${sisa} chances left before the quiz is locked.`;
+  $("tirai").classList.add("tampil");
+}
+
+$("btnKembali").addEventListener("click", async () => {
+  await mintaLayarPenuh();
+  $("tirai").classList.remove("tampil");
+  S.overlayTerbuka = false;
+  S.terakhirPelanggaran = Date.now();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) catatPelanggaran("Switched tab or minimised the window");
+});
+window.addEventListener("blur", () => catatPelanggaran("Focus moved to another app or window"));
+document.addEventListener("fullscreenchange", () => {
+  if (!dalamLayarPenuh()) catatPelanggaran("Left fullscreen mode");
+});
+document.addEventListener("webkitfullscreenchange", () => {
+  if (!dalamLayarPenuh()) catatPelanggaran("Left fullscreen mode");
+});
+
+// hambat klik kanan, salin, dan beberapa pintasan umum
+document.addEventListener("contextmenu", e => { if (S.mulai) e.preventDefault(); });
+["copy", "cut", "paste"].forEach(ev => document.addEventListener(ev, e => { if (S.mulai) e.preventDefault(); }));
+document.addEventListener("keydown", e => {
+  if (!S.mulai || S.selesai) return;
+  const k = e.key.toLowerCase();
+  const blok = e.key === "F12" || e.key === "Escape"
+    || (e.ctrlKey && ["c","v","x","u","s","p","t","n","w","r"].includes(k))
+    || (e.ctrlKey && e.shiftKey && ["i","j","c"].includes(k))
+    || (e.altKey && e.key === "Tab");
+  if (blok) e.preventDefault();
+});
+window.addEventListener("beforeunload", e => {
+  if (S.mulai && !S.selesai) { e.preventDefault(); e.returnValue = ""; }
+});
+
+/* =========================================================
+   SOAL
+   ========================================================= */
+function renderSoal() {
+  const i = S.indeks, s = S.soal[i], total = S.soal.length;
+  $("nomor").textContent = `Question ${i + 1} of ${total} · ${s.t === "pg" ? "Multiple choice" : "Fill in the blank"}`;
+  $("pertanyaan").textContent = s.q;
+
+  if (s.t === "pg") {
+    $("opsi").innerHTML = s.p.map((p, j) => `
+      <label>
+        <input type="radio" name="jwb" value="${j}" ${S.jawaban[i] === j ? "checked" : ""}>
+        <span class="huruf">${huruf[j]}</span><span>${p}</span>
+      </label>`).join("");
+    $("opsi").querySelectorAll("input").forEach(r => r.addEventListener("change", () => {
+      S.jawaban[i] = Number(r.value);
+      renderNav();
+    }));
+  } else {
+    $("opsi").innerHTML = `
+      <div class="isian">
+        <input type="text" id="jwbIsian" autocomplete="off" spellcheck="false"
+               placeholder="Type your answer here" value="${(S.jawaban[i] ?? "").replace(/"/g, "&quot;")}">
+        <div class="petunjuk">Write the correct form of the verb in brackets, e.g. <em>is reading</em>, <em>will go</em>, <em>were playing</em>.</div>
+      </div>`;
+    const inp = $("jwbIsian");
+    inp.addEventListener("input", () => { S.jawaban[i] = inp.value; renderNav(); });
+    inp.addEventListener("keydown", e => { if (e.key === "Enter" && i < total - 1) { S.indeks++; renderSoal(); } });
+    inp.focus();
+  }
+
+  $("btnSebelum").disabled = i === 0;
+  $("btnBerikut").hidden = i === total - 1;
+  $("btnKumpul").hidden = i !== total - 1;
+  renderNav();
+}
+
+function renderNav() {
+  $("navsoal").innerHTML = S.soal.map((_, j) => {
+    const cls = [j === S.indeks ? "sekarang" : "", terjawab(j) ? "terjawab" : ""].join(" ");
+    return `<button class="${cls}" data-i="${j}" aria-label="Question ${j + 1}">${j + 1}</button>`;
+  }).join("");
+  $("navsoal").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    S.indeks = Number(b.dataset.i); renderSoal();
+  }));
+}
+
+$("btnSebelum").addEventListener("click", () => { S.indeks--; renderSoal(); });
+$("btnBerikut").addEventListener("click", () => { S.indeks++; renderSoal(); });
+$("btnKumpul").addEventListener("click", () => {
+  const kosong = S.soal.filter((_, j) => !terjawab(j)).length;
+  $("dialogIsi").textContent = kosong
+    ? `${kosong} question${kosong > 1 ? "s are" : " is"} still unanswered. Blank answers count as wrong.`
+    : "All questions are answered. Once submitted, answers cannot be changed.";
+  S.dialogTerbuka = true;
+  $("dialogKumpul").classList.add("tampil");
+  $("btnBatalKumpul").focus();
+});
+$("btnBatalKumpul").addEventListener("click", () => {
+  $("dialogKumpul").classList.remove("tampil");
+  S.dialogTerbuka = false;
+});
+$("btnYakinKumpul").addEventListener("click", () => {
+  $("dialogKumpul").classList.remove("tampil");
+  S.dialogTerbuka = false;
+  selesaikan("Submitted by student");
+});
+
+/* =========================================================
+   SELESAI
+   ========================================================= */
+function selesaikan(cara) {
+  if (S.selesai) return;
+  S.selesai = true;
+  clearInterval(S.timer);
+  $("tirai").classList.remove("tampil");
+  S.overlayTerbuka = false;
+  if (dalamLayarPenuh() && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+
+  const benar = S.soal.filter((_, i) => benarkah(i)).length;
+  const skor = Math.round(benar / S.soal.length * 100);
+  const dikunci = cara.startsWith("Locked");
+  const durasi = KONFIG.durasiMenit * 60 - S.sisaDetik;
+
+  $("skorAngka").textContent = skor;
+  $("skorKotak").classList.toggle("dikunci", dikunci);
+  $("statusHasil").textContent = cara;
+  $("statusHasil").className = "status " + (dikunci ? "dikunci" : "selesai");
+  $("metaHasil").textContent = `${S.nama} · ${S.kelas} · ${S.paket} · ${benar} of ${S.soal.length} correct · ${fmtWaktu(durasi)} used`;
+  $("metaPelanggaran").textContent = `${S.pelanggaran.length} violation${S.pelanggaran.length === 1 ? "" : "s"} recorded`;
+
+  const teksJawab = i => {
+    const s = S.soal[i], j = S.jawaban[i];
+    if (!terjawab(i)) return "-";
+    return s.t === "pg" ? huruf[j] : String(j).trim();
+  };
+  $("rekapWrap").hidden = !KONFIG.tampilkanRincian;
+  $("rekapJawaban").innerHTML = S.soal.map((s, i) => {
+    const st = !terjawab(i) ? "kosong" : benarkah(i) ? "ok" : "salah";
+    const tanda = st === "ok" ? "\u2713" : st === "salah" ? "\u2715" : "\u2013";
+    let ket = !terjawab(i) ? "Not answered"
+      : s.t === "pg" ? `Your answer: ${huruf[S.jawaban[i]]}. ${s.p[S.jawaban[i]]}` : `Your answer: ${teksJawab(i)}`;
+    if (KONFIG.tampilkanKunci && st !== "ok") ket += ` \u00b7 Correct answer: ${s.t === "pg" ? s.p[s.j] : s.j[0]}`;
+    return `<div class="rekap-item"><span class="tanda ${st}">${tanda}</span>
+      <div><div>${i + 1}. ${s.q}</div><div class="ket">${ket}</div></div></div>`;
+  }).join("");
+
+  // jawaban urut nomor asli paket, agar mudah dicocokkan guru
+  const jawabanUrut = S.soal.map((s, i) => ({ n: s.asli + 1, t: s.t, v: teksJawab(i), ok: benarkah(i) }))
+    .sort((a, b) => a.n - b.n);
+  S.jawabanTeks = jawabanUrut.filter(x => !x.ok).map(x => `${x.n}:${x.v}`).join(" | ");
+
+  // detail per soal (untuk sheet "Detail Jawaban") dan ringkasan soal yang salah
+  const kunciTeks = s => s.t === "pg" ? `${huruf[s.j]}. ${s.p[s.j]}` : s.j[0];
+  const kunciAsli = s => {
+    // kunci PG dalam huruf urutan ASLI bank soal (bukan urutan acak), agar cocok dengan kunci guru
+    const asli = KONFIG.paket.find(pk => pk.nama === S.paket).soal[s.asli];
+    return asli.t === "pg" ? `${huruf[asli.j]}. ${asli.p[asli.j]}` : asli.j[0];
+  };
+  const jawabTeksPenuh = i => {
+    const s = S.soal[i], j = S.jawaban[i];
+    if (!terjawab(i)) return "-";
+    return s.t === "pg" ? s.p[j] : String(j).trim();
+  };
+  S.detail = S.soal.map((s, i) => ({
+    no: s.asli + 1, tipe: s.t === "pg" ? "PG" : "Isian", soal: s.q,
+    jawaban: jawabTeksPenuh(i), kunci: kunciAsli(s), benar: benarkah(i) ? 1 : 0
+  })).sort((a, b) => a.no - b.no);
+  const salah = S.detail.filter(d => !d.benar);
+  S.salahNomor = salah.map(d => d.no).join(", ");
+  S.salahRincian = salah.map(d => `#${d.no} ${d.soal} → jawab: ${d.jawaban} | kunci: ${d.kunci}`).join("\n");
+
+  $("logPelanggaran").innerHTML = S.pelanggaran.length
+    ? S.pelanggaran.map(p => `<li><time>${p.jam}</time><span>${p.alasan} (question ${p.soal})</span></li>`).join("")
+    : `<li class="kosong-log">No violations. Well done.</li>`;
+
+  S.ringkasan = [
+    `QUIZ: ${KONFIG.judul} (${S.paket})`,
+    `Name: ${S.nama} | Class: ${S.kelas}`,
+    `Score: ${skor} (${benar}/${S.soal.length}) | Status: ${cara}`,
+    `Started: ${S.waktuMulai.toLocaleString("id-ID")} | Time used: ${fmtWaktu(durasi)}`,
+    `Violations: ${S.pelanggaran.length}`,
+    ...S.pelanggaran.map(p => `  - ${p.jam} ${p.alasan} (question ${p.soal})`),
+    `Wrong answers: ${S.jawabanTeks || "none"}`
+  ].join("\n");
+
+  $("kopStatus").hidden = true;
+  tampilkan("layarHasil");
+  window.scrollTo(0, 0);
+
+  kirimHasil({
+    jenis: "hasil", kuis: KONFIG.judul, paket: S.paket, nama: S.nama, kelas: S.kelas,
+    mulai: S.waktuMulai.toLocaleString("id-ID"), durasi: fmtWaktu(durasi),
+    skor, benar, total: S.soal.length, status: cara,
+    jumlahPelanggaran: S.pelanggaran.length,
+    pelanggaran: S.pelanggaran.map(p => `${p.jam} ${p.alasan} (question ${p.soal})`).join("; "),
+    jawaban: S.jawabanTeks,
+    salahNomor: S.salahNomor, salahRincian: S.salahRincian,
+    detail: S.detail
+  });
+}
+
+/* =========================================================
+   KIRIM KE GOOGLE SHEET
+   ========================================================= */
+function kirimKeSheet(data) {
+  if (!KONFIG.sheetUrl) return Promise.resolve(false);
+  return fetch(KONFIG.sheetUrl, {
+    method: "POST", mode: "no-cors", keepalive: true,
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(data)
+  }).then(() => true).catch(() => false);
+}
+
+async function kirimHasil(data) {
+  const el = $("statusKirim");
+  if (!KONFIG.sheetUrl) { el.hidden = true; return; }
+  el.hidden = false;
+  el.className = "kirim proses";
+  el.textContent = "Sending your results to the teacher…";
+  let ok = await kirimKeSheet(data);
+  if (!ok) { await new Promise(r => setTimeout(r, 2000)); ok = await kirimKeSheet(data); }
+  el.className = "kirim " + (ok ? "ok" : "gagal");
+  el.textContent = ok
+    ? "Your results have been sent to the teacher."
+    : "Sending failed. Copy the summary below and send it to your teacher.";
+}
+
+$("btnSalin").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(S.ringkasan); $("btnSalin").textContent = "Summary copied"; }
+  catch { prompt("Copy this text:", S.ringkasan); }
+});
+
+function tampilkan(id) {
+  document.querySelectorAll(".layar").forEach(l => l.classList.remove("aktif"));
+  $(id).classList.add("aktif");
+}
+</script>
+</body>
+</html>
