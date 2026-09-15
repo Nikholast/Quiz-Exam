@@ -284,6 +284,7 @@
         <dt>Answered</dt><dd id="lanjutJawab"></dd>
         <dt>Time left</dt><dd id="lanjutWaktu"></dd>
         <dt>Violations</dt><dd id="lanjutPelanggaran"></dd>
+        <dt>Reloads</dt><dd id="lanjutMuatUlang">0</dd>
       </dl>
     </div>
 
@@ -380,7 +381,7 @@
   <div class="tirai-kotak">
     <div class="besar">EN</div>
     <h2>Translation detected</h2>
-    <p>This quiz must stay in English. Turn the translation off, then press the button below.</p>
+    <p>This page must stay in English. This is not a violation and nothing was recorded &mdash; just turn the translation off and continue.</p>
     <ol class="cara-matikan">
       <li>Chrome: click the translate icon in the address bar &rarr; <b>Show original</b>.</li>
       <li>Or right-click the page &rarr; <b>Translate to English</b> &rarr; turn it off.</li>
@@ -661,9 +662,8 @@ const KONFIG = {
   idUjian: "exam-1-future-continuous-past-perfect",   // kunci penyimpanan; WAJIB unik per file
   kunciReset: "",            // kosong = cukup ?reset-exam ; isi "mikael2026" = ?reset-exam=mikael2026
   simpanProgres: true,       // progres dipulihkan otomatis setelah refresh
-  refreshJadiPelanggaran: true,  // reload halaman dihitung sebagai pelanggaran
   waktuTerusBerjalan: true,      // waktu jalan terus walau halaman ditutup
-  blokirTerjemahan: true,        // deteksi Google Translate dan sejenisnya
+  blokirTerjemahan: true,        // paksa halaman tetap bahasa Inggris (bukan pelanggaran)
 
   paket: BANK_SOAL
 };
@@ -678,7 +678,7 @@ const S = {
   timer: null, terakhirPelanggaran: 0, overlayTerbuka: false,
   // sesi & bahasa
   rencana: null, mulaiEpoch: 0, tenggat: 0,
-  logTerjemah: [], terjemahTerbuka: false, tundaSimpan: null
+  muatUlang: 0, terjemahTerbuka: false, tundaSimpan: null
 };
 
 const $ = id => document.getElementById(id);
@@ -743,10 +743,8 @@ $("btnLanjut").addEventListener("click", async () => {
   renderSoal();
   S.timer = setInterval(detak, 1000);
   detak();
-  if (KONFIG.refreshJadiPelanggaran && !S.selesai) {
-    S.terakhirPelanggaran = 0;
-    catatPelanggaran("Page was reloaded", true);
-  }
+  // memuat ulang halaman TIDAK dihitung sebagai pelanggaran, hanya dihitung untuk info pengawas
+  S.terakhirPelanggaran = Date.now();
   simpanProgres();
 });
 
@@ -824,9 +822,12 @@ document.addEventListener("contextmenu", e => { if (S.mulai) e.preventDefault();
 document.addEventListener("keydown", e => {
   if (!S.mulai || S.selesai) return;
   const k = e.key.toLowerCase();
+  const mod = e.ctrlKey || e.metaKey;
   const blok = e.key === "F12" || e.key === "Escape"
-    || (e.ctrlKey && ["c","v","x","u","s","p","t","n","w","r"].includes(k))
-    || (e.ctrlKey && e.shiftKey && ["i","j","c"].includes(k))
+    || e.key === "F5"                                   // refresh
+    || (mod && e.key === "F5")                          // hard refresh
+    || (mod && ["c","v","x","u","s","p","t","n","w","r"].includes(k))
+    || (mod && e.shiftKey && ["i","j","c","r"].includes(k))
     || (e.altKey && e.key === "Tab");
   if (blok) e.preventDefault();
 });
@@ -968,10 +969,8 @@ function selesaikan(cara) {
   S.salahNomor = salah.map(d => d.no).join(", ");
   S.salahRincian = salah.map(d => `#${d.no} ${d.soal} → jawab: ${d.jawaban} | kunci: ${d.kunci}`).join("\n");
 
-  const semuaLog = S.pelanggaran.map(p => `<li><time>${p.jam}</time><span>${p.alasan} (question ${p.soal})</span></li>`)
-    .concat(S.logTerjemah.map(p => `<li><time>${p.jam}</time><span>${p.alasan} (question ${p.soal}) \u00b7 not counted</span></li>`));
-  $("logPelanggaran").innerHTML = semuaLog.length
-    ? semuaLog.join("")
+  $("logPelanggaran").innerHTML = S.pelanggaran.length
+    ? S.pelanggaran.map(p => `<li><time>${p.jam}</time><span>${p.alasan} (question ${p.soal})</span></li>`).join("")
     : `<li class="kosong-log">No violations. Well done.</li>`;
 
   S.ringkasan = [
@@ -981,8 +980,6 @@ function selesaikan(cara) {
     `Started: ${S.waktuMulai.toLocaleString("id-ID")} | Time used: ${fmtWaktu(durasi)}`,
     `Violations: ${S.pelanggaran.length}`,
     ...S.pelanggaran.map(p => `  - ${p.jam} ${p.alasan} (question ${p.soal})`),
-    `Translation attempts: ${S.logTerjemah.length}`,
-    ...S.logTerjemah.map(p => `  - ${p.jam} ${p.alasan} (question ${p.soal})`),
     `Wrong answers: ${S.jawabanTeks || "none"}`
   ].join("\n");
 
@@ -1062,7 +1059,7 @@ function simpanProgres() {
       v: 1, id: KONFIG.idUjian,
       nama: S.nama, kelas: S.kelas, rencana: S.rencana,
       jawaban: S.jawaban, indeks: S.indeks,
-      pelanggaran: S.pelanggaran, logTerjemah: S.logTerjemah,
+      pelanggaran: S.pelanggaran, muatUlang: S.muatUlang,
       mulaiEpoch: S.mulaiEpoch, tenggat: S.tenggat,
       selesai: S.selesai, cara: S.caraSelesai || "",
       skor: S.skorAkhir ?? null, benar: S.benarAkhir ?? null,
@@ -1132,9 +1129,10 @@ function tampilkanLanjut() {
   $("lanjutJawab").textContent = `${jml} of ${S.soal.length}`;
   $("lanjutWaktu").textContent = fmtWaktu(sisaDetikSekarang());
   $("lanjutPelanggaran").textContent = `${S.pelanggaran.length} of ${KONFIG.maksPelanggaran}`;
-  $("lanjutCatatan").textContent = KONFIG.refreshJadiPelanggaran
-    ? "The clock keeps running while the page is closed, and reloading this page is recorded as a violation."
-    : "The clock keeps running while the page is closed.";
+  $("lanjutMuatUlang").textContent = S.muatUlang;
+  $("lanjutCatatan").textContent =
+    "The clock kept running while this page was closed. Reloading is not a violation, but it is counted here. "
+    + "Press the button to go back into fullscreen and continue.";
   $("waktu").textContent = fmtWaktu(sisaDetikSekarang());
   tampilkan("layarLanjut");
 }
@@ -1177,14 +1175,8 @@ function periksaTerjemahan() {
   if (!KONFIG.blokirTerjemahan || S.terjemahTerbuka) return;
   if (!terjemahanAktif()) return;
   S.terjemahTerbuka = true;
-  if (S.mulai && !S.selesai) {
-    const catatan = { jam: jamSekarang(), alasan: "Translation tool detected", soal: S.indeks + 1 };
-    S.logTerjemah.push(catatan);
-    kirimKeSheet({ jenis: "pelanggaran", paket: S.paket, nama: S.nama, kelas: S.kelas,
-                   jam: catatan.jam, alasan: catatan.alasan, soal: catatan.soal,
-                   urutan: S.pelanggaran.length + S.logTerjemah.length });
-    simpanProgres();
-  }
+  // terjemahan otomatis adalah ulah browser, bukan kecurangan siswa:
+  // tidak dicatat sebagai pelanggaran dan tidak dikirim ke spreadsheet.
   $("terjemahMasihAktif").hidden = true;
   $("tiraiTerjemahan").classList.add("tampil");
 }
@@ -1226,7 +1218,7 @@ function jagaBahasa() {
       ? d.jawaban : S.soal.map(() => null);
     S.indeks = Math.min(Math.max(0, d.indeks || 0), S.soal.length - 1);
     S.pelanggaran = d.pelanggaran || [];
-    S.logTerjemah = d.logTerjemah || [];
+    S.muatUlang = d.muatUlang || 0;
     S.mulaiEpoch = d.mulaiEpoch || Date.now();
     S.tenggat = d.tenggat || (S.mulaiEpoch + KONFIG.durasiMenit * 60 * 1000);
     S.waktuMulai = new Date(S.mulaiEpoch);
@@ -1242,6 +1234,7 @@ function jagaBahasa() {
       selesaikan("Time is up");
       return;
     }
+    S.muatUlang = (d.muatUlang || 0) + 1;
     tampilkanLanjut();
     return;
   }
