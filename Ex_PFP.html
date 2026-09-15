@@ -37,6 +37,20 @@
   button { font: inherit; cursor: pointer; }
   button:focus-visible, input:focus-visible, label:focus-within { outline: 3px solid var(--merah); outline-offset: 2px; }
 
+  /* ---------- gerbang sandi ---------- */
+  .gembok {
+    width: 46px; height: 46px; border-radius: 14px;
+    background: var(--ungu-muda); color: var(--ungu);
+    display: grid; place-items: center; margin-bottom: 14px;
+  }
+  .gembok svg { width: 24px; height: 24px; }
+  .pilih-teks {
+    -webkit-user-select: text; user-select: text;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 12.5px; word-break: break-all; line-height: 1.5;
+  }
+  #layarMasuk .field { max-width: 420px; }
+
   /* ---------- kop ---------- */
   .kop {
     position: sticky; top: 0; z-index: 10;
@@ -237,8 +251,35 @@
 
 <main class="kanvas">
 
+  <!-- ===== GERBANG SANDI ===== -->
+  <section class="layar aktif" id="layarMasuk">
+    <div class="gembok" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+    </div>
+    <h1>Protected exam</h1>
+    <p class="pengantar">Enter the access password given by your teacher. Without it, the exam cannot be opened.</p>
+
+    <div class="field">
+      <label for="sandiMasuk">Access password</label>
+      <input id="sandiMasuk" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Password from your teacher">
+    </div>
+
+    <div class="banner merah" id="sandiSalah" hidden>Wrong password. Please try again.</div>
+    <div class="banner merah" id="sandiTunggu" hidden>Too many attempts. Please wait <b><span id="sandiDetik">15</span></b> seconds.</div>
+
+    <div class="kotak-info" id="sandiAlat" hidden>
+      <h3>New password hash</h3>
+      <p class="pilih-teks" id="sandiAlatIsi"></p>
+    </div>
+
+    <button class="tombol utama lebar" id="btnMasuk">Unlock the exam</button>
+  </section>
+
   <!-- ===== MULAI ===== -->
-  <section class="layar aktif" id="layarMulai">
+  <section class="layar" id="layarMulai">
     <h1 id="judulKuis">Quiz</h1>
     <p class="pengantar" id="deskripsiKuis"></p>
 
@@ -657,6 +698,17 @@ const KONFIG = {
   tampilkanKunci: false,   // tampilkan jawaban yang benar di layar hasil
   // URL Web App dari Google Apps Script (lihat PANDUAN.md). Kosongkan jika tidak dipakai.
   sheetUrl: "",  // <-- PASTE your Google Apps Script Web App URL here
+
+  /* ---- sandi masuk (gerbang sebelum ujian dibuka) ---- */
+  wajibSandi: true,          // false = gerbang sandi dimatikan
+  // Sandi default: mikael2026
+  // Ganti sandi: buka file ini dengan tambahan ?sandi-baru=SANDIBARU di address bar,
+  // lalu salin hash yang muncul ke baris sandiHash di bawah ini.
+  sandiHash: "f62fb3f55d963f8df3b25e11b6fe3ace34c57c2294281ec0ec8cd6d2e3b9682f",
+  sandiTeks: "",             // alternatif cepat: tulis sandi apa adanya di sini (TERBACA di source, kurang aman)
+  ingatSandi: true,          // true = tidak perlu ketik ulang sandi setelah refresh di perangkat yang sama
+  maksSalahSandi: 3,         // setelah sekian kali salah, input dijeda
+  jedaSandiDetik: 15,        // lama jeda setelah salah berulang
 
   /* ---- sesi, anti-ulang, anti-terjemah ---- */
   idUjian: "exam-2-present-perfect-future-perfect",   // kunci penyimpanan; WAJIB unik per file
@@ -1112,7 +1164,7 @@ function cekReset() {
   const diberi = q.get("reset-exam") || "";
   const perlu = String(KONFIG.kunciReset || "");
   const sah = perlu === "" || diberi === perlu;
-  if (sah) hapusSimpanan();
+  if (sah) { hapusSimpanan(); lupakanMasuk(); }
   q.delete("reset-exam");
   const sisa = q.toString();
   // buang parameter dari address bar supaya siswa tidak menyalinnya
@@ -1202,9 +1254,138 @@ function jagaBahasa() {
 }
 
 /* =========================================================
+   GERBANG SANDI — ujian hanya terbuka setelah sandi benar
+   ========================================================= */
+const KUNCI_MASUK = "smkmikael:masuk:" + KONFIG.idUjian;
+
+/* SHA-256 mandiri (tidak butuh https/crypto.subtle, jadi tetap jalan dari file lokal) */
+const SHA_K = [
+  0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+  0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+  0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+  0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+  0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+  0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+  0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+  0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+];
+function sha256(str) {
+  const b = [];
+  for (let i = 0; i < str.length; i++) {
+    let c = str.charCodeAt(i);
+    if (c < 128) b.push(c);
+    else if (c < 2048) b.push(192 | c >> 6, 128 | c & 63);
+    else if (c < 55296 || c >= 57344) b.push(224 | c >> 12, 128 | (c >> 6) & 63, 128 | c & 63);
+    else { i++; c = 65536 + (((c & 1023) << 10) | (str.charCodeAt(i) & 1023));
+      b.push(240 | c >> 18, 128 | (c >> 12) & 63, 128 | (c >> 6) & 63, 128 | c & 63); }
+  }
+  const bl = b.length * 8;
+  b.push(128);
+  while (b.length % 64 !== 56) b.push(0);
+  for (let i = 7; i >= 0; i--) b.push(Math.floor(bl / Math.pow(2, i * 8)) & 255);
+  let h = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const w = new Array(64);
+  for (let p = 0; p < b.length; p += 64) {
+    for (let i = 0; i < 16; i++) w[i] = (b[p+i*4] << 24) | (b[p+i*4+1] << 16) | (b[p+i*4+2] << 8) | b[p+i*4+3];
+    for (let i = 16; i < 64; i++) {
+      const a = w[i-15], c = w[i-2];
+      const s0 = ((a >>> 7) | (a << 25)) ^ ((a >>> 18) | (a << 14)) ^ (a >>> 3);
+      const s1 = ((c >>> 17) | (c << 15)) ^ ((c >>> 19) | (c << 13)) ^ (c >>> 10);
+      w[i] = (w[i-16] + s0 + w[i-7] + s1) | 0;
+    }
+    let [A,B,C,D,E,F,G,H] = h;
+    for (let i = 0; i < 64; i++) {
+      const S1 = ((E >>> 6) | (E << 26)) ^ ((E >>> 11) | (E << 21)) ^ ((E >>> 25) | (E << 7));
+      const ch = (E & F) ^ (~E & G);
+      const t1 = (H + S1 + ch + SHA_K[i] + w[i]) | 0;
+      const S0 = ((A >>> 2) | (A << 30)) ^ ((A >>> 13) | (A << 19)) ^ ((A >>> 22) | (A << 10));
+      const mj = (A & B) ^ (A & C) ^ (B & C);
+      const t2 = (S0 + mj) | 0;
+      H = G; G = F; F = E; E = (D + t1) | 0; D = C; C = B; B = A; A = (t1 + t2) | 0;
+    }
+    h = [(h[0]+A)|0,(h[1]+B)|0,(h[2]+C)|0,(h[3]+D)|0,(h[4]+E)|0,(h[5]+F)|0,(h[6]+G)|0,(h[7]+H)|0];
+  }
+  return h.map(x => (x >>> 0).toString(16).padStart(8, "0")).join("");
+}
+
+const normSandi = s => String(s ?? "").trim();
+function sandiBenar(teks) {
+  const v = normSandi(teks);
+  if (!v) return false;
+  if (KONFIG.sandiTeks) return v === normSandi(KONFIG.sandiTeks);
+  if (KONFIG.sandiHash) return sha256(v) === String(KONFIG.sandiHash).trim().toLowerCase();
+  return false;
+}
+function tandaiMasuk() {
+  if (!KONFIG.ingatSandi) return;
+  try { localStorage.setItem(KUNCI_MASUK, sha256(KONFIG.idUjian + "|" + (KONFIG.sandiHash || KONFIG.sandiTeks))); } catch (e) {}
+}
+function sudahMasuk() {
+  if (!KONFIG.ingatSandi) return false;
+  try { return localStorage.getItem(KUNCI_MASUK) === sha256(KONFIG.idUjian + "|" + (KONFIG.sandiHash || KONFIG.sandiTeks)); }
+  catch (e) { return false; }
+}
+function lupakanMasuk() { try { localStorage.removeItem(KUNCI_MASUK); } catch (e) {} }
+
+/* ?sandi-baru=xxxx : alat bantu guru untuk membuat hash sandi baru */
+function cekAlatSandi() {
+  const q = new URLSearchParams(location.search);
+  if (!q.has("sandi-baru")) return false;
+  const baru = q.get("sandi-baru") || "";
+  q.delete("sandi-baru");
+  try { history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash); } catch (e) {}
+  if (!baru) return false;
+  $("sandiAlatIsi").textContent = `sandiHash: "${sha256(baru)}",`;
+  $("sandiAlat").hidden = false;
+  return true;
+}
+
+let salahSandi = 0, jedaSandi = null;
+function jedakanSandi() {
+  let sisa = KONFIG.jedaSandiDetik;
+  $("sandiSalah").hidden = true;
+  $("sandiTunggu").hidden = false;
+  $("sandiDetik").textContent = sisa;
+  $("sandiMasuk").disabled = true;
+  $("btnMasuk").disabled = true;
+  clearInterval(jedaSandi);
+  jedaSandi = setInterval(() => {
+    sisa--;
+    $("sandiDetik").textContent = sisa;
+    if (sisa <= 0) {
+      clearInterval(jedaSandi);
+      salahSandi = 0;
+      $("sandiTunggu").hidden = true;
+      $("sandiMasuk").disabled = false;
+      $("btnMasuk").disabled = false;
+      $("sandiMasuk").focus();
+    }
+  }, 1000);
+}
+
+function cobaMasuk() {
+  if ($("btnMasuk").disabled) return;
+  if (sandiBenar($("sandiMasuk").value)) {
+    tandaiMasuk();
+    $("sandiMasuk").value = "";
+    jalan();
+    return;
+  }
+  salahSandi++;
+  $("sandiMasuk").value = "";
+  if (salahSandi >= KONFIG.maksSalahSandi) { jedakanSandi(); return; }
+  $("sandiSalah").hidden = false;
+  $("sandiMasuk").focus();
+}
+
+$("btnMasuk").addEventListener("click", cobaMasuk);
+$("sandiMasuk").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); cobaMasuk(); } });
+$("sandiMasuk").addEventListener("input", () => { $("sandiSalah").hidden = true; });
+
+/* =========================================================
    BOOTSTRAP
    ========================================================= */
-(function jalan() {
+function jalan() {
   const hasilReset = cekReset();
   if (hasilReset === "ok") $("bannerReset").hidden = false;
   if (hasilReset === "gagal") $("bannerResetGagal").hidden = false;
@@ -1244,6 +1425,13 @@ function jagaBahasa() {
   $("waktu").textContent = fmtWaktu(KONFIG.durasiMenit * 60);
   jagaBahasa();
   tampilkan("layarMulai");
+}
+
+(function gerbang() {
+  const pakaiAlat = cekAlatSandi();
+  if (!pakaiAlat && (!KONFIG.wajibSandi || !(KONFIG.sandiHash || KONFIG.sandiTeks) || sudahMasuk())) { jalan(); return; }
+  tampilkan("layarMasuk");
+  setTimeout(() => { try { $("sandiMasuk").focus(); } catch (e) {} }, 60);
 })();
 </script>
 </body>
