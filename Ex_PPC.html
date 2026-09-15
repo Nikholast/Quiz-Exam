@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no" class="notranslate">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- kunci bahasa: halaman tidak boleh diterjemahkan otomatis -->
+<meta name="google" content="notranslate">
+<meta name="googlebot" content="notranslate">
+<meta http-equiv="Content-Language" content="en">
 <title>Locked Exam — SMK Mikael</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -32,6 +36,20 @@
   input { -webkit-user-select: text; user-select: text; }
   button { font: inherit; cursor: pointer; }
   button:focus-visible, input:focus-visible, label:focus-within { outline: 3px solid var(--merah); outline-offset: 2px; }
+
+  /* ---------- gerbang sandi ---------- */
+  .gembok {
+    width: 46px; height: 46px; border-radius: 14px;
+    background: var(--ungu-muda); color: var(--ungu);
+    display: grid; place-items: center; margin-bottom: 14px;
+  }
+  .gembok svg { width: 24px; height: 24px; }
+  .pilih-teks {
+    -webkit-user-select: text; user-select: text;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 12.5px; word-break: break-all; line-height: 1.5;
+  }
+  #layarMasuk .field { max-width: 420px; }
 
   /* ---------- kop ---------- */
   .kop {
@@ -189,12 +207,37 @@
   .tirai.ungu .tombol:hover { background: var(--ungu-muda); }
   .tirai.ungu .tombol.polos-putih { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.5); }
   .tirai.ungu .tombol.polos-putih:hover { background: rgba(255,255,255,.12); }
+  /* ---------- kotak info: lanjutkan / terkunci ---------- */
+  .kotak-info {
+    margin-top: 20px; padding: 16px 18px; border-radius: 12px;
+    background: var(--ungu-muda); border-left: 4px solid var(--ungu);
+  }
+  .kotak-info.merah { background: var(--merah-muda); border-left-color: var(--merah); }
+  .kotak-info h3 { font-size: 15px; font-weight: 700; color: var(--ungu); margin-bottom: 8px; }
+  .kotak-info.merah h3 { color: var(--merah); }
+  .kotak-info p { font-size: 15px; }
+  .kotak-info dl {
+    display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px;
+    font-size: 15px; align-items: baseline;
+  }
+  .kotak-info dt { font-weight: 600; color: var(--abu); }
+  .kotak-info dd { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .banner {
+    margin-bottom: 20px; padding: 12px 16px; border-radius: 8px;
+    font-weight: 600; font-size: 14px;
+    background: var(--benar-muda); color: var(--benar);
+  }
+  .banner.merah { background: var(--merah-muda); color: var(--merah); }
+  .cara-matikan { text-align: left; margin-top: 18px; font-size: 15px; line-height: 1.6; }
+  .cara-matikan li + li { margin-top: 6px; }
+  .tirai .pesan-gagal { margin-top: 14px; font-weight: 700; }
+
   .dialog-aksi { display: flex; gap: 12px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
 
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
-<body>
+<body class="notranslate" translate="no">
 
 <header class="kop">
   <div class="kop-in">
@@ -208,8 +251,35 @@
 
 <main class="kanvas">
 
+  <!-- ===== GERBANG SANDI ===== -->
+  <section class="layar aktif" id="layarMasuk">
+    <div class="gembok" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+    </div>
+    <h1>Protected exam</h1>
+    <p class="pengantar">Enter the access password given by your teacher. Without it, the exam cannot be opened.</p>
+
+    <div class="field">
+      <label for="sandiMasuk">Access password</label>
+      <input id="sandiMasuk" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Password from your teacher">
+    </div>
+
+    <div class="banner merah" id="sandiSalah" hidden>Wrong password. Please try again.</div>
+    <div class="banner merah" id="sandiTunggu" hidden>Too many attempts. Please wait <b><span id="sandiDetik">15</span></b> seconds.</div>
+
+    <div class="kotak-info" id="sandiAlat" hidden>
+      <h3>New password hash</h3>
+      <p class="pilih-teks" id="sandiAlatIsi"></p>
+    </div>
+
+    <button class="tombol utama lebar" id="btnMasuk">Unlock the exam</button>
+  </section>
+
   <!-- ===== MULAI ===== -->
-  <section class="layar aktif" id="layarMulai">
+  <section class="layar" id="layarMulai">
     <h1 id="judulKuis">Exam</h1>
     <p class="pengantar" id="deskripsiKuis"></p>
 
@@ -236,7 +306,52 @@
       </ul>
     </div>
 
+    <div class="banner" id="bannerReset" hidden>Previous attempt cleared by the teacher. A new attempt can be started.</div>
+    <div class="banner merah" id="bannerResetGagal" hidden>Wrong reset key. The saved attempt was not cleared.</div>
+
     <button class="tombol utama lebar" id="btnMulai">Start the exam in fullscreen</button>
+  </section>
+
+  <!-- ===== LANJUTKAN SETELAH REFRESH ===== -->
+  <section class="layar" id="layarLanjut">
+    <h1>Resume your exam</h1>
+    <p class="pengantar">An unfinished attempt was found on this device. Your answers were saved, so you continue from where you stopped. You cannot start a new attempt.</p>
+
+    <div class="kotak-info">
+      <h3>Saved attempt</h3>
+      <dl>
+        <dt>Name</dt><dd id="lanjutNama"></dd>
+        <dt>Class</dt><dd id="lanjutKelas"></dd>
+        <dt>Answered</dt><dd id="lanjutJawab"></dd>
+        <dt>Time left</dt><dd id="lanjutWaktu"></dd>
+        <dt>Violations</dt><dd id="lanjutPelanggaran"></dd>
+        <dt>Reloads</dt><dd id="lanjutMuatUlang">0</dd>
+      </dl>
+    </div>
+
+    <div class="kotak-info merah">
+      <h3>Important</h3>
+      <p id="lanjutCatatan"></p>
+    </div>
+
+    <button class="tombol utama lebar" id="btnLanjut">Resume in fullscreen</button>
+  </section>
+
+  <!-- ===== SUDAH DIKERJAKAN ===== -->
+  <section class="layar" id="layarTerkunci">
+    <h1>This exam is already finished</h1>
+    <p class="pengantar">You have submitted this exam on this device. It cannot be taken again. Only your teacher can unlock a new attempt.</p>
+
+    <div class="skor" id="kunciSkorKotak">
+      <div class="angka"><span id="kunciSkor">0</span><small>/100</small></div>
+      <div>
+        <div class="status" id="kunciStatus"></div>
+        <div class="meta" id="kunciMeta"></div>
+        <div class="meta" id="kunciPelanggaran"></div>
+      </div>
+    </div>
+
+    <button class="tombol polos lebar" id="btnSalinKunci">Copy summary for the teacher</button>
   </section>
 
   <!-- ===== SOAL ===== -->
@@ -302,10 +417,26 @@
   </div>
 </div>
 
+<!-- ===== OVERLAY TERJEMAHAN ===== -->
+<div class="tirai" id="tiraiTerjemahan" role="alertdialog" aria-modal="true">
+  <div class="tirai-kotak">
+    <div class="besar">EN</div>
+    <h2>Translation detected</h2>
+    <p>This page must stay in English. This is not a violation and nothing was recorded &mdash; just turn the translation off and continue.</p>
+    <ol class="cara-matikan">
+      <li>Chrome: click the translate icon in the address bar &rarr; <b>Show original</b>.</li>
+      <li>Or right-click the page &rarr; <b>Translate to English</b> &rarr; turn it off.</li>
+      <li>Disable any translate extension for this page, then press the button.</li>
+    </ol>
+    <p class="pesan-gagal" id="terjemahMasihAktif" hidden>Translation is still active. Turn it off first.</p>
+    <button class="tombol" id="btnTerjemahanSelesai">I have turned it off</button>
+  </div>
+</div>
+
 <script>
 /* =========================================================
    BANK SOAL — Simple Future, Present Continuous, Past Continuous
-   5 paket (Set A–E), masing-masing 40 soal: 20 pilihan ganda (pg) + 20 isian.
+   5 paket (Set A–E), masing-masing 42 soal: 21 pilihan ganda (pg) + 21 isian.
    Setiap siswa mendapat satu paket secara acak (acakPaket: true).
    Konteks campuran: umum + teknik mesin. Sebagian soal dibuat
    lebih sulit (klausa ganda, error-finding, tanpa kata kerja terarah).
@@ -338,6 +469,7 @@ const BANK_SOAL = [
   { t:"pg", q:"The supervisor ____ that the new machine ____ ready by next week.", p:["promises – is","promised – was","promises – will be","promised – will be"], j:2 },
   { t:"pg", q:"\"The lights suddenly went out.\" \"Yes, I ____ dinner when it happened.\"", p:["cook","am cooking","was cooking","will cook"], j:2 },
   { t:"pg", q:"Find the mistake: \"The foreman is checking the safety helmets while the workers was entering the site.\"", p:["is checking","the safety helmets","was entering","while"], j:2 },
+  { t:"pg", q:"The mechanic already ordered the spare parts yesterday. Which sentence correctly describes his plan?", p:["He will fix the engine tomorrow.","He is going to fix the engine tomorrow.","He fixes the engine tomorrow.","He was fixing the engine tomorrow."], j:1 },
   /* ---------- ISIAN (20) ---------- */
   { t:"isian", q:"My mother ____ (cook) dinner right now.", j:["is cooking"] },
   { t:"isian", q:"The operator ____ (start) the machine at the moment.", j:["is starting"] },
@@ -347,7 +479,7 @@ const BANK_SOAL = [
   { t:"isian", q:"Yesterday at 10 a.m., the welder ____ (join) the metal plates.", j:["was joining"] },
   { t:"isian", q:"Look! The workers ____ (build) a new gate for the school.", j:["are building"] },
   { t:"isian", q:"While the technician ____ (test) the engine, the alarm suddenly went off.", j:["was testing"] },
-  { t:"isian", q:"____ (you / attend) the ceremony tomorrow?", j:["will you attend"] },
+  { t:"isian", q:"You already told your homeroom teacher your plan. ____ (you / attend) the ceremony tomorrow?", j:["are you going to attend"] },
   { t:"isian", q:"____ (the mechanic / repair) the brake system now?", j:["is the mechanic repairing"] },
   { t:"isian", q:"I promise I ____ (not / be) late for the meeting again.", j:["won't be","will not be"] },
   { t:"isian", q:"The team ____ (not / work) on the assembly line right now; they are on a break.", j:["isn't working","is not working"] },
@@ -358,7 +490,8 @@ const BANK_SOAL = [
   { t:"isian", q:"Right now, the choir ____ (practice) for tomorrow's ceremony.", j:["is practicing","is practising"] },
   { t:"isian", q:"Next month, the workshop ____ (receive) a new set of lathe machines.", j:["will receive","is going to receive","is receiving"] },
   { t:"isian", q:"He ____ (not / pay) attention when the teacher explained the formula, so he failed to understand it.", j:["wasn't paying","was not paying"] },
-  { t:"isian", q:"Why ____ (the machine / not / work) properly today?", j:["isn't the machine working","is the machine not working"] }
+  { t:"isian", q:"Why ____ (the machine / not / work) properly today?", j:["isn't the machine working","is the machine not working"] },
+  { t:"isian", q:"Look at the smoke coming from the exhaust — the engine ____ (overheat).", j:["is going to overheat"] }
 ]},
 
 { nama: "Set B", soal: [
@@ -383,6 +516,7 @@ const BANK_SOAL = [
   { t:"pg", q:"The inspector ____ that the machine ____ certified next week.", p:["confirms – is","confirmed – was","confirms – will be","confirmed – will be"], j:2 },
   { t:"pg", q:"\"The power went out.\" \"Yes, I ____ my laptop when it happened.\"", p:["charge","am charging","was charging","will charge"], j:2 },
   { t:"pg", q:"Find the mistake: \"The foreman was inspecting the workshop while the trainees was cleaning their tools.\"", p:["was inspecting","the workshop","was cleaning","while"], j:2 },
+  { t:"pg", q:"The factory manager announced the decision in this morning's meeting. Which sentence correctly reports it?", p:["The factory will open a new branch.","The factory is going to open a new branch.","The factory opens a new branch.","The factory opened a new branch."], j:1 },
   /* ---------- ISIAN (20) ---------- */
   { t:"isian", q:"My brother ____ (wash) the car right now.", j:["is washing"] },
   { t:"isian", q:"The technician ____ (adjust) the machine at the moment.", j:["is adjusting"] },
@@ -392,7 +526,7 @@ const BANK_SOAL = [
   { t:"isian", q:"Yesterday at noon, the fitter ____ (tighten) the bolts.", j:["was tightening"] },
   { t:"isian", q:"Look! The dog ____ (chase) its tail.", j:["is chasing"] },
   { t:"isian", q:"While the driver ____ (load) the truck, the manager arrived unexpectedly.", j:["was loading"] },
-  { t:"isian", q:"____ (they / join) the competition next week?", j:["will they join"] },
+  { t:"isian", q:"The coach already put their names on the list. ____ (they / join) the competition next week?", j:["are they going to join"] },
   { t:"isian", q:"____ (the engineer / measure) the shaft diameter now?", j:["is the engineer measuring"] },
   { t:"isian", q:"I promise I ____ (not / forget) to bring the documents this time.", j:["won't forget","will not forget"] },
   { t:"isian", q:"The crew ____ (not / operate) the crane right now; it is under maintenance.", j:["isn't operating","is not operating"] },
@@ -403,7 +537,8 @@ const BANK_SOAL = [
   { t:"isian", q:"Right now, the band ____ (rehearse) for the school festival.", j:["is rehearsing"] },
   { t:"isian", q:"Next semester, the workshop ____ (add) a new welding station.", j:["will add","is going to add","is adding"] },
   { t:"isian", q:"She ____ (not / listen) carefully when the instructions were given, so she made a mistake.", j:["wasn't listening","was not listening"] },
-  { t:"isian", q:"Why ____ (the compressor / not / run) smoothly this morning?", j:["isn't the compressor running","is the compressor not running"] }
+  { t:"isian", q:"Why ____ (the compressor / not / run) smoothly this morning?", j:["isn't the compressor running","is the compressor not running"] },
+  { t:"isian", q:"Listen to that grinding noise — the gearbox ____ (fail).", j:["is going to fail"] }
 ]},
 
 { nama: "Set C", soal: [
@@ -428,6 +563,7 @@ const BANK_SOAL = [
   { t:"pg", q:"The manager ____ that the delivery ____ on time next week.", p:["assures – is","assured – was","assures – will be","assured – will be"], j:2 },
   { t:"pg", q:"\"The fire alarm went off.\" \"Yes, I ____ lunch when it happened.\"", p:["eat","am eating","was eating","will eat"], j:2 },
   { t:"pg", q:"Find the mistake: \"The supervisor is monitoring the line while the operators was recording the output.\"", p:["is monitoring","the line","was recording","while"], j:2 },
+  { t:"pg", q:"The school board approved the plan last week. Which sentence correctly reports it?", p:["The school will open a new lab.","The school is going to open a new lab.","The school opens a new lab.","The school opened a new lab."], j:1 },
   /* ---------- ISIAN (20) ---------- */
   { t:"isian", q:"My father ____ (wash) the car at the moment.", j:["is washing"] },
   { t:"isian", q:"The technician ____ (calibrate) the meter right now.", j:["is calibrating"] },
@@ -437,7 +573,7 @@ const BANK_SOAL = [
   { t:"isian", q:"Yesterday at 8 a.m., the welder ____ (prepare) the metal sheets.", j:["was preparing"] },
   { t:"isian", q:"Look! The cat ____ (climb) the tree.", j:["is climbing"] },
   { t:"isian", q:"While the operator ____ (monitor) the gauge, the pressure suddenly dropped.", j:["was monitoring"] },
-  { t:"isian", q:"____ (she / join) the choir next term?", j:["will she join"] },
+  { t:"isian", q:"She already signed the registration form. ____ (she / join) the choir next term?", j:["is she going to join"] },
   { t:"isian", q:"____ (the technician / calibrate) the scale now?", j:["is the technician calibrating"] },
   { t:"isian", q:"I promise I ____ (not / interrupt) you during the meeting.", j:["won't interrupt","will not interrupt"] },
   { t:"isian", q:"The team ____ (not / test) the prototype right now; they are reviewing the design first.", j:["isn't testing","is not testing"] },
@@ -448,7 +584,8 @@ const BANK_SOAL = [
   { t:"isian", q:"Right now, the students ____ (rehearse) their presentation.", j:["are rehearsing"] },
   { t:"isian", q:"Next year, the school ____ (open) a new mechanical engineering lab.", j:["will open","is going to open","is opening"] },
   { t:"isian", q:"He ____ (not / concentrate) during the lecture, so he missed the key point.", j:["wasn't concentrating","was not concentrating"] },
-  { t:"isian", q:"Why ____ (the machine / not / start) this morning?", j:["isn't the machine starting","is the machine not starting"] }
+  { t:"isian", q:"Why ____ (the machine / not / start) this morning?", j:["isn't the machine starting","is the machine not starting"] },
+  { t:"isian", q:"The sky is completely dark — it ____ (rain) before we finish the project.", j:["is going to rain"] }
 ]},
 
 { nama: "Set D", soal: [
@@ -473,6 +610,7 @@ const BANK_SOAL = [
   { t:"pg", q:"The technician ____ that the readings ____ normal by tomorrow.", p:["expects – are","expected – were","expects – will be","expected – will be"], j:2 },
   { t:"pg", q:"\"The siren went off suddenly.\" \"Yes, I ____ my bag when it happened.\"", p:["pack","am packing","was packing","will pack"], j:2 },
   { t:"pg", q:"Find the mistake: \"The supervisor is checking the report while the technicians was fixing the machine.\"", p:["is checking","the report","was fixing","while"], j:2 },
+  { t:"pg", q:"The workshop head already signed the purchase order this morning. Which sentence correctly reports the plan?", p:["The workshop will buy a new welding machine.","The workshop is going to buy a new welding machine.","The workshop buys a new welding machine.","The workshop bought a new welding machine."], j:1 },
   /* ---------- ISIAN (20) ---------- */
   { t:"isian", q:"My sister ____ (paint) her room right now.", j:["is painting"] },
   { t:"isian", q:"The operator ____ (adjust) the pressure valve at the moment.", j:["is adjusting"] },
@@ -482,7 +620,7 @@ const BANK_SOAL = [
   { t:"isian", q:"Yesterday at 9 a.m., the fitter ____ (assemble) the frame.", j:["was assembling"] },
   { t:"isian", q:"Look! The baby ____ (cry) loudly.", j:["is crying"] },
   { t:"isian", q:"While the operator ____ (run) the machine, the emergency stop was triggered.", j:["was running"] },
-  { t:"isian", q:"____ (he / travel) abroad next year?", j:["will he travel"] },
+  { t:"isian", q:"He already bought his plane ticket. ____ (he / travel) abroad next year?", j:["is he going to travel"] },
   { t:"isian", q:"____ (the mechanic / check) the tires now?", j:["is the mechanic checking"] },
   { t:"isian", q:"I promise I ____ (not / disturb) you while you study.", j:["won't disturb","will not disturb"] },
   { t:"isian", q:"The workers ____ (not / assemble) the parts right now; they are having a briefing.", j:["aren't assembling","are not assembling"] },
@@ -493,7 +631,8 @@ const BANK_SOAL = [
   { t:"isian", q:"Right now, the players ____ (warm up) before the match.", j:["are warming up"] },
   { t:"isian", q:"Next semester, the school ____ (add) more practical sessions in the workshop.", j:["will add","is going to add","is adding"] },
   { t:"isian", q:"He ____ (not / focus) during practice, so he missed the shot.", j:["wasn't focusing","was not focusing"] },
-  { t:"isian", q:"Why ____ (the engine / not / run) smoothly today?", j:["isn't the engine running","is the engine not running"] }
+  { t:"isian", q:"Why ____ (the engine / not / run) smoothly today?", j:["isn't the engine running","is the engine not running"] },
+  { t:"isian", q:"The machine is shaking badly and making a strange sound — it ____ (break down).", j:["is going to break down"] }
 ]},
 
 { nama: "Set E", soal: [
@@ -518,6 +657,7 @@ const BANK_SOAL = [
   { t:"pg", q:"The supervisor ____ that the machine ____ repaired by Monday.", p:["hopes – is","hoped – was","hopes – will be","hoped – will be"], j:2 },
   { t:"pg", q:"\"The bell suddenly rang.\" \"Yes, I ____ my bag when it happened.\"", p:["pack","am packing","was packing","will pack"], j:2 },
   { t:"pg", q:"Find the mistake: \"The supervisor is reviewing the schedule while the workers was loading the truck.\"", p:["is reviewing","the schedule","was loading","while"], j:2 },
+  { t:"pg", q:"The company director already signed the lease last week. Which sentence correctly reports the plan?", p:["The company will open a new branch.","The company is going to open a new branch.","The company opens a new branch.","The company opened a new branch."], j:1 },
   /* ---------- ISIAN (20) ---------- */
   { t:"isian", q:"My father ____ (fix) the fence right now.", j:["is fixing"] },
   { t:"isian", q:"The technician ____ (measure) the voltage at the moment.", j:["is measuring"] },
@@ -527,7 +667,7 @@ const BANK_SOAL = [
   { t:"isian", q:"Yesterday at 7 a.m., the crew ____ (prepare) the tools.", j:["was preparing"] },
   { t:"isian", q:"Look! The leaves ____ (fall) from the tree.", j:["are falling"] },
   { t:"isian", q:"While the technician ____ (install) the new part, the machine restarted unexpectedly.", j:["was installing"] },
-  { t:"isian", q:"____ (you / compete) in the tournament next month?", j:["will you compete"] },
+  { t:"isian", q:"You already registered your team. ____ (you / compete) in the tournament next month?", j:["are you going to compete"] },
   { t:"isian", q:"____ (the operator / adjust) the settings now?", j:["is the operator adjusting"] },
   { t:"isian", q:"I promise I ____ (not / delay) the report again.", j:["won't delay","will not delay"] },
   { t:"isian", q:"The crew ____ (not / weld) the joint right now; they are waiting for the inspector.", j:["isn't welding","is not welding"] },
@@ -538,7 +678,8 @@ const BANK_SOAL = [
   { t:"isian", q:"Right now, the audience ____ (wait) for the show to start.", j:["is waiting"] },
   { t:"isian", q:"Next semester, the lab ____ (get) new measuring instruments.", j:["will get","is going to get","is getting"] },
   { t:"isian", q:"She ____ (not / pay) attention to the safety briefing, so she made an error.", j:["wasn't paying","was not paying"] },
-  { t:"isian", q:"Why ____ (the pump / not / work) properly today?", j:["isn't the pump working","is the pump not working"] }
+  { t:"isian", q:"Why ____ (the pump / not / work) properly today?", j:["isn't the pump working","is the pump not working"] },
+  { t:"isian", q:"Sparks are coming from the wiring — something ____ (go) wrong.", j:["is going to go"] }
 ]}
 
 ];
@@ -558,6 +699,25 @@ const KONFIG = {
   tampilkanKunci: false,   // tampilkan jawaban yang benar di layar hasil
   // URL Web App dari Google Apps Script (lihat PANDUAN.md). Kosongkan jika tidak dipakai.
   sheetUrl: "https://script.google.com/macros/s/AKfycbyUl6ot7HTK9VpDk19q7ynKZWiswVclR72FTIbIP3f8jn-xV1mpswOQpwODQtI5dOS6zA/exec",
+
+  /* ---- sandi masuk (gerbang sebelum ujian dibuka) ---- */
+  wajibSandi: true,          // false = gerbang sandi dimatikan
+  // Sandi default: mikael2026
+  // Ganti sandi: buka file ini dengan tambahan ?sandi-baru=SANDIBARU di address bar,
+  // lalu salin hash yang muncul ke baris sandiHash di bawah ini.
+  sandiHash: "f62fb3f55d963f8df3b25e11b6fe3ace34c57c2294281ec0ec8cd6d2e3b9682f",
+  sandiTeks: "",             // alternatif cepat: tulis sandi apa adanya di sini (TERBACA di source, kurang aman)
+  ingatSandi: true,          // true = tidak perlu ketik ulang sandi setelah refresh di perangkat yang sama
+  maksSalahSandi: 3,         // setelah sekian kali salah, input dijeda
+  jedaSandiDetik: 15,        // lama jeda setelah salah berulang
+
+  /* ---- sesi, anti-ulang, anti-terjemah ---- */
+  idUjian: "Ex_PPC1",   // kunci penyimpanan; WAJIB unik per file
+  kunciReset: "",            // kosong = cukup ?reset-exam ; isi "mikael2026" = ?reset-exam=mikael2026
+  simpanProgres: true,       // progres dipulihkan otomatis setelah refresh
+  waktuTerusBerjalan: true,      // waktu jalan terus walau halaman ditutup
+  blokirTerjemahan: true,        // paksa halaman tetap bahasa Inggris (bukan pelanggaran)
+
   paket: BANK_SOAL
 };
 
@@ -568,7 +728,10 @@ const S = {
   mulai: false, selesai: false,
   soal: [], jawaban: [], indeks: 0,
   pelanggaran: [], sisaDetik: KONFIG.durasiMenit * 60,
-  timer: null, terakhirPelanggaran: 0, overlayTerbuka: false
+  timer: null, terakhirPelanggaran: 0, overlayTerbuka: false,
+  // sesi & bahasa
+  rencana: null, mulaiEpoch: 0, tenggat: 0,
+  muatUlang: 0, terjemahTerbuka: false, tundaSimpan: null
 };
 
 const $ = id => document.getElementById(id);
@@ -590,23 +753,8 @@ $("waktu").textContent = fmtWaktu(S.sisaDetik);
 
 const acak = a => { for (let i = a.length - 1; i > 0; i--) { const k = Math.floor(Math.random() * (i + 1)); [a[i], a[k]] = [a[k], a[i]]; } return a; };
 
-const iPaket = KONFIG.acakPaket ? Math.floor(Math.random() * KONFIG.paket.length) : 0;
-S.paket = KONFIG.paket[iPaket].nama;
-S.soal = KONFIG.paket[iPaket].soal.map((s, i) => {
-  const soal = { ...s, asli: i };
-  if (s.t === "pg" && KONFIG.acakPilihan) {
-    const urut = acak(s.p.map((_, k) => k));
-    soal.p = urut.map(k => s.p[k]);
-    soal.j = urut.indexOf(s.j);
-  }
-  return soal;
-});
-if (KONFIG.acakSoal) acak(S.soal);
-S.jawaban = S.soal.map(() => null);
-
-const nPG = S.soal.filter(s => s.t === "pg").length, nIsian = S.soal.length - nPG;
-$("infoSoal").textContent = `${S.soal.length} questions: ${nPG} multiple choice, ${nIsian} fill in the blank`;
-$("kopJudul").textContent = `${KONFIG.judul} · ${S.paket}`;
+/* Paket, urutan soal, dan urutan pilihan dibangun lewat buatRencana() + terapkanRencana()
+   di blok SESI (paling bawah), supaya bisa dipulihkan persis setelah halaman di-refresh. */
 
 const terjawab = i => S.jawaban[i] !== null && String(S.jawaban[i]).trim() !== "";
 const norm = s => String(s ?? "").toLowerCase().replace(/[\u2019\u2018]/g, "'").replace(/[.!?]+$/, "").replace(/\s+/g, " ").trim();
@@ -622,7 +770,10 @@ const benarkah = i => {
 $("btnMulai").addEventListener("click", async () => {
   const nama = $("nama").value.trim(), kelas = $("kelas").value.trim();
   if (!nama || !kelas) { alert("Please fill in your name and class first."); return; }
-  S.nama = nama; S.kelas = kelas; S.waktuMulai = new Date();
+  S.nama = nama; S.kelas = kelas;
+  S.mulaiEpoch = Date.now();
+  S.waktuMulai = new Date(S.mulaiEpoch);
+  S.tenggat = S.mulaiEpoch + KONFIG.durasiMenit * 60 * 1000;
 
   await mintaLayarPenuh();
   S.mulai = true;
@@ -630,6 +781,24 @@ $("btnMulai").addEventListener("click", async () => {
   $("kopStatus").hidden = false;
   renderSoal();
   S.timer = setInterval(detak, 1000);
+  detak();
+  simpanProgres();
+});
+
+/* lanjutkan sesi lama setelah halaman di-refresh */
+$("btnLanjut").addEventListener("click", async () => {
+  await mintaLayarPenuh();
+  S.mulai = true;
+  tampilkan("layarSoal");
+  $("kopStatus").hidden = false;
+  $("pelanggaranTeks").textContent = `${S.pelanggaran.length}/${KONFIG.maksPelanggaran}`;
+  if (S.pelanggaran.length) $("pilPelanggaran").classList.add("bahaya");
+  renderSoal();
+  S.timer = setInterval(detak, 1000);
+  detak();
+  // memuat ulang halaman TIDAK dihitung sebagai pelanggaran, hanya dihitung untuk info pengawas
+  S.terakhirPelanggaran = Date.now();
+  simpanProgres();
 });
 
 async function mintaLayarPenuh() {
@@ -638,8 +807,14 @@ async function mintaLayarPenuh() {
 }
 const dalamLayarPenuh = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
 
+/* waktu dihitung dari tenggat (jam dinding), bukan dari hitungan mundur di memori,
+   supaya refresh atau menutup tab tidak menambah waktu pengerjaan */
+function sisaDetikSekarang() {
+  if (!S.tenggat) return KONFIG.durasiMenit * 60;
+  return Math.max(0, Math.round((S.tenggat - Date.now()) / 1000));
+}
 function detak() {
-  S.sisaDetik--;
+  S.sisaDetik = sisaDetikSekarang();
   $("waktu").textContent = fmtWaktu(S.sisaDetik);
   if (S.sisaDetik <= 60) $("pilWaktu").classList.add("bahaya");
   if (S.sisaDetik <= 0) selesaikan("Time is up");
@@ -648,8 +823,8 @@ function detak() {
 /* =========================================================
    PENGAWASAN
    ========================================================= */
-function catatPelanggaran(alasan) {
-  if (!S.mulai || S.selesai || S.overlayTerbuka || S.dialogTerbuka) return;
+function catatPelanggaran(alasan, senyap) {
+  if (!S.mulai || S.selesai || S.overlayTerbuka || S.dialogTerbuka || S.terjemahTerbuka) return;
   const kini = Date.now();
   if (kini - S.terakhirPelanggaran < 1500) return;   // blur + visibilitychange sering muncul bersamaan
   S.terakhirPelanggaran = kini;
@@ -661,7 +836,10 @@ function catatPelanggaran(alasan) {
   $("pelanggaranTeks").textContent = `${n}/${KONFIG.maksPelanggaran}`;
   $("pilPelanggaran").classList.add("bahaya");
 
+  simpanProgres();
+
   if (n >= KONFIG.maksPelanggaran) { selesaikan("Locked due to violations"); return; }
+  if (senyap) return;
 
   S.overlayTerbuka = true;
   $("tiraiHitung").textContent = n;
@@ -697,9 +875,12 @@ document.addEventListener("contextmenu", e => { if (S.mulai) e.preventDefault();
 document.addEventListener("keydown", e => {
   if (!S.mulai || S.selesai) return;
   const k = e.key.toLowerCase();
+  const mod = e.ctrlKey || e.metaKey;
   const blok = e.key === "F12" || e.key === "Escape"
-    || (e.ctrlKey && ["c","v","x","u","s","p","t","n","w","r"].includes(k))
-    || (e.ctrlKey && e.shiftKey && ["i","j","c"].includes(k))
+    || e.key === "F5"                                   // refresh
+    || (mod && e.key === "F5")                          // hard refresh
+    || (mod && ["c","v","x","u","s","p","t","n","w","r"].includes(k))
+    || (mod && e.shiftKey && ["i","j","c","r"].includes(k))
     || (e.altKey && e.key === "Tab");
   if (blok) e.preventDefault();
 });
@@ -724,6 +905,7 @@ function renderSoal() {
     $("opsi").querySelectorAll("input").forEach(r => r.addEventListener("change", () => {
       S.jawaban[i] = Number(r.value);
       renderNav();
+      simpanProgres();
     }));
   } else {
     $("opsi").innerHTML = `
@@ -733,7 +915,7 @@ function renderSoal() {
         <div class="petunjuk">Write the correct form of the verb in brackets, e.g. <em>is reading</em>, <em>will go</em>, <em>were playing</em>.</div>
       </div>`;
     const inp = $("jwbIsian");
-    inp.addEventListener("input", () => { S.jawaban[i] = inp.value; renderNav(); });
+    inp.addEventListener("input", () => { S.jawaban[i] = inp.value; renderNav(); simpanNanti(); });
     inp.addEventListener("keydown", e => { if (e.key === "Enter" && i < total - 1) { S.indeks++; renderSoal(); } });
     inp.focus();
   }
@@ -750,12 +932,12 @@ function renderNav() {
     return `<button class="${cls}" data-i="${j}" aria-label="Question ${j + 1}">${j + 1}</button>`;
   }).join("");
   $("navsoal").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
-    S.indeks = Number(b.dataset.i); renderSoal();
+    S.indeks = Number(b.dataset.i); renderSoal(); simpanProgres();
   }));
 }
 
-$("btnSebelum").addEventListener("click", () => { S.indeks--; renderSoal(); });
-$("btnBerikut").addEventListener("click", () => { S.indeks++; renderSoal(); });
+$("btnSebelum").addEventListener("click", () => { S.indeks--; renderSoal(); simpanProgres(); });
+$("btnBerikut").addEventListener("click", () => { S.indeks++; renderSoal(); simpanProgres(); });
 $("btnKumpul").addEventListener("click", () => {
   const kosong = S.soal.filter((_, j) => !terjawab(j)).length;
   $("dialogIsi").textContent = kosong
@@ -781,6 +963,7 @@ $("btnYakinKumpul").addEventListener("click", () => {
 function selesaikan(cara) {
   if (S.selesai) return;
   S.selesai = true;
+  S.sisaDetik = sisaDetikSekarang();
   clearInterval(S.timer);
   $("tirai").classList.remove("tampil");
   S.overlayTerbuka = false;
@@ -853,6 +1036,9 @@ function selesaikan(cara) {
     `Wrong answers: ${S.jawabanTeks || "none"}`
   ].join("\n");
 
+  S.caraSelesai = cara; S.skorAkhir = skor; S.benarAkhir = benar; S.durasiAkhir = fmtWaktu(durasi);
+  simpanProgres();
+
   $("kopStatus").hidden = true;
   tampilkan("layarHasil");
   window.scrollTo(0, 0);
@@ -904,6 +1090,350 @@ function tampilkan(id) {
   document.querySelectorAll(".layar").forEach(l => l.classList.remove("aktif"));
   $(id).classList.add("aktif");
 }
+
+/* =========================================================
+   SESI: SIMPAN PROGRES, LANJUT SETELAH REFRESH, KUNCI ULANG
+   ========================================================= */
+const KUNCI_SIMPAN = "smkmikael:kuis:" + KONFIG.idUjian;
+
+const sandiIn  = o => btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+const sandiOut = s => JSON.parse(decodeURIComponent(escape(atob(s))));
+
+function bacaSimpanan() {
+  try { const r = localStorage.getItem(KUNCI_SIMPAN); return r ? sandiOut(r) : null; }
+  catch (e) { return null; }
+}
+function hapusSimpanan() { try { localStorage.removeItem(KUNCI_SIMPAN); } catch (e) {} }
+
+function simpanProgres() {
+  if (!KONFIG.simpanProgres || !S.mulai || !S.rencana) return;
+  try {
+    localStorage.setItem(KUNCI_SIMPAN, sandiIn({
+      v: 1, id: KONFIG.idUjian,
+      nama: S.nama, kelas: S.kelas, rencana: S.rencana,
+      jawaban: S.jawaban, indeks: S.indeks,
+      pelanggaran: S.pelanggaran, muatUlang: S.muatUlang,
+      mulaiEpoch: S.mulaiEpoch, tenggat: S.tenggat,
+      selesai: S.selesai, cara: S.caraSelesai || "",
+      skor: S.skorAkhir ?? null, benar: S.benarAkhir ?? null,
+      total: S.soal.length, durasi: S.durasiAkhir || "",
+      ringkasan: S.ringkasan || ""
+    }));
+  } catch (e) {}
+}
+/* simpan yang ditunda, dipakai untuk ketikan isian supaya tidak menulis tiap huruf */
+function simpanNanti() {
+  clearTimeout(S.tundaSimpan);
+  S.tundaSimpan = setTimeout(simpanProgres, 400);
+}
+window.addEventListener("pagehide", simpanProgres);
+
+/* ---------- rencana soal (paket + urutan) ---------- */
+function buatRencana() {
+  const iPaket = KONFIG.acakPaket ? Math.floor(Math.random() * KONFIG.paket.length) : 0;
+  const soal = KONFIG.paket[iPaket].soal;
+  const urut = soal.map((_, i) => i);
+  if (KONFIG.acakSoal) acak(urut);
+  const pilihan = {};
+  soal.forEach((s, i) => {
+    if (s.t === "pg" && KONFIG.acakPilihan) pilihan[i] = acak(s.p.map((_, k) => k));
+  });
+  return { paket: iPaket, urut, pilihan };
+}
+function terapkanRencana(r) {
+  const pk = KONFIG.paket[r.paket] || KONFIG.paket[0];
+  S.rencana = r;
+  S.paket = pk.nama;
+  S.soal = r.urut.map(i => {
+    const s = pk.soal[i], soal = { ...s, asli: i };
+    const ord = r.pilihan ? r.pilihan[i] : null;
+    if (s.t === "pg" && ord) {
+      soal.p = ord.map(k => s.p[k]);
+      soal.j = ord.indexOf(s.j);
+    }
+    return soal;
+  });
+  const nPG = S.soal.filter(s => s.t === "pg").length, nIsian = S.soal.length - nPG;
+  $("infoSoal").textContent = `${S.soal.length} questions: ${nPG} multiple choice, ${nIsian} fill in the blank`;
+  $("kopJudul").textContent = `${KONFIG.judul} \u00b7 ${S.paket}`;
+}
+
+/* ---------- ?reset-exam : hanya guru yang boleh membuka ulang ---------- */
+function cekReset() {
+  const q = new URLSearchParams(location.search);
+  if (!q.has("reset-exam")) return null;
+  const diberi = q.get("reset-exam") || "";
+  const perlu = String(KONFIG.kunciReset || "");
+  const sah = perlu === "" || diberi === perlu;
+  if (sah) { hapusSimpanan(); lupakanMasuk(); }
+  q.delete("reset-exam");
+  const sisa = q.toString();
+  // buang parameter dari address bar supaya siswa tidak menyalinnya
+  try { history.replaceState(null, "", location.pathname + (sisa ? "?" + sisa : "") + location.hash); }
+  catch (e) {}
+  return sah ? "ok" : "gagal";
+}
+
+/* ---------- layar lanjutkan & layar terkunci ---------- */
+function tampilkanLanjut() {
+  const jml = S.soal.filter((_, j) => terjawab(j)).length;
+  $("lanjutNama").textContent = S.nama || "-";
+  $("lanjutKelas").textContent = S.kelas || "-";
+  $("lanjutJawab").textContent = `${jml} of ${S.soal.length}`;
+  $("lanjutWaktu").textContent = fmtWaktu(sisaDetikSekarang());
+  $("lanjutPelanggaran").textContent = `${S.pelanggaran.length} of ${KONFIG.maksPelanggaran}`;
+  $("lanjutMuatUlang").textContent = S.muatUlang;
+  $("lanjutCatatan").textContent =
+    "The clock kept running while this page was closed. Reloading is not a violation, but it is counted here. "
+    + "Press the button to go back into fullscreen and continue.";
+  $("waktu").textContent = fmtWaktu(sisaDetikSekarang());
+  tampilkan("layarLanjut");
+}
+
+function tampilkanTerkunci(d) {
+  $("kunciSkor").textContent = d.skor ?? 0;
+  const dikunci = String(d.cara || "").startsWith("Locked");
+  $("kunciSkorKotak").classList.toggle("dikunci", dikunci);
+  $("kunciStatus").textContent = d.cara || "Submitted";
+  $("kunciStatus").className = "status " + (dikunci ? "dikunci" : "selesai");
+  $("kunciMeta").textContent =
+    `${d.nama} \u00b7 ${d.kelas} \u00b7 ${S.paket} \u00b7 ${d.benar ?? 0} of ${d.total ?? S.soal.length} correct` +
+    (d.durasi ? ` \u00b7 ${d.durasi} used` : "");
+  $("kunciPelanggaran").textContent =
+    `${(d.pelanggaran || []).length} violation${(d.pelanggaran || []).length === 1 ? "" : "s"} recorded`;
+  S.ringkasan = d.ringkasan || "";
+  $("kopStatus").hidden = true;
+  tampilkan("layarTerkunci");
+}
+
+$("btnSalinKunci").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(S.ringkasan); $("btnSalinKunci").textContent = "Summary copied"; }
+  catch { prompt("Copy this text:", S.ringkasan); }
+});
+
+/* =========================================================
+   PENJAGA BAHASA: halaman wajib tetap bahasa Inggris
+   ========================================================= */
+function terjemahanAktif() {
+  const h = document.documentElement;
+  if (h.classList.contains("translated-ltr") || h.classList.contains("translated-rtl")) return true;
+  if (document.querySelector(".goog-te-banner-frame, .skiptranslate, #goog-gt-tt")) return true;
+  if (document.querySelector("font[_msttexthash], [_msthash], [_mstmutation]")) return true;
+  // Google Translate membungkus teks dengan <font style="vertical-align: inherit;">
+  if (document.querySelector("font[style*='vertical-align']")) return true;
+  return false;
+}
+
+function periksaTerjemahan() {
+  if (!KONFIG.blokirTerjemahan || S.terjemahTerbuka) return;
+  if (!terjemahanAktif()) return;
+  S.terjemahTerbuka = true;
+  // terjemahan otomatis adalah ulah browser, bukan kecurangan siswa:
+  // tidak dicatat sebagai pelanggaran dan tidak dikirim ke spreadsheet.
+  $("terjemahMasihAktif").hidden = true;
+  $("tiraiTerjemahan").classList.add("tampil");
+}
+
+$("btnTerjemahanSelesai").addEventListener("click", async () => {
+  if (terjemahanAktif()) { $("terjemahMasihAktif").hidden = false; return; }
+  $("tiraiTerjemahan").classList.remove("tampil");
+  S.terjemahTerbuka = false;
+  S.terakhirPelanggaran = Date.now();
+  if (S.mulai && !S.selesai) await mintaLayarPenuh();
+});
+
+function jagaBahasa() {
+  if (!KONFIG.blokirTerjemahan) return;
+  try {
+    new MutationObserver(periksaTerjemahan).observe(document.documentElement, {
+      attributes: true, attributeFilter: ["class", "lang", "_msthash"],
+      childList: true, subtree: true
+    });
+  } catch (e) {}
+  setInterval(periksaTerjemahan, 1500);
+  periksaTerjemahan();
+}
+
+/* =========================================================
+   GERBANG SANDI — ujian hanya terbuka setelah sandi benar
+   ========================================================= */
+const KUNCI_MASUK = "smkmikael:masuk:" + KONFIG.idUjian;
+
+/* SHA-256 mandiri (tidak butuh https/crypto.subtle, jadi tetap jalan dari file lokal) */
+const SHA_K = [
+  0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+  0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+  0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+  0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+  0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+  0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+  0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+  0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+];
+function sha256(str) {
+  const b = [];
+  for (let i = 0; i < str.length; i++) {
+    let c = str.charCodeAt(i);
+    if (c < 128) b.push(c);
+    else if (c < 2048) b.push(192 | c >> 6, 128 | c & 63);
+    else if (c < 55296 || c >= 57344) b.push(224 | c >> 12, 128 | (c >> 6) & 63, 128 | c & 63);
+    else { i++; c = 65536 + (((c & 1023) << 10) | (str.charCodeAt(i) & 1023));
+      b.push(240 | c >> 18, 128 | (c >> 12) & 63, 128 | (c >> 6) & 63, 128 | c & 63); }
+  }
+  const bl = b.length * 8;
+  b.push(128);
+  while (b.length % 64 !== 56) b.push(0);
+  for (let i = 7; i >= 0; i--) b.push(Math.floor(bl / Math.pow(2, i * 8)) & 255);
+  let h = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const w = new Array(64);
+  for (let p = 0; p < b.length; p += 64) {
+    for (let i = 0; i < 16; i++) w[i] = (b[p+i*4] << 24) | (b[p+i*4+1] << 16) | (b[p+i*4+2] << 8) | b[p+i*4+3];
+    for (let i = 16; i < 64; i++) {
+      const a = w[i-15], c = w[i-2];
+      const s0 = ((a >>> 7) | (a << 25)) ^ ((a >>> 18) | (a << 14)) ^ (a >>> 3);
+      const s1 = ((c >>> 17) | (c << 15)) ^ ((c >>> 19) | (c << 13)) ^ (c >>> 10);
+      w[i] = (w[i-16] + s0 + w[i-7] + s1) | 0;
+    }
+    let [A,B,C,D,E,F,G,H] = h;
+    for (let i = 0; i < 64; i++) {
+      const S1 = ((E >>> 6) | (E << 26)) ^ ((E >>> 11) | (E << 21)) ^ ((E >>> 25) | (E << 7));
+      const ch = (E & F) ^ (~E & G);
+      const t1 = (H + S1 + ch + SHA_K[i] + w[i]) | 0;
+      const S0 = ((A >>> 2) | (A << 30)) ^ ((A >>> 13) | (A << 19)) ^ ((A >>> 22) | (A << 10));
+      const mj = (A & B) ^ (A & C) ^ (B & C);
+      const t2 = (S0 + mj) | 0;
+      H = G; G = F; F = E; E = (D + t1) | 0; D = C; C = B; B = A; A = (t1 + t2) | 0;
+    }
+    h = [(h[0]+A)|0,(h[1]+B)|0,(h[2]+C)|0,(h[3]+D)|0,(h[4]+E)|0,(h[5]+F)|0,(h[6]+G)|0,(h[7]+H)|0];
+  }
+  return h.map(x => (x >>> 0).toString(16).padStart(8, "0")).join("");
+}
+
+const normSandi = s => String(s ?? "").trim();
+function sandiBenar(teks) {
+  const v = normSandi(teks);
+  if (!v) return false;
+  if (KONFIG.sandiTeks) return v === normSandi(KONFIG.sandiTeks);
+  if (KONFIG.sandiHash) return sha256(v) === String(KONFIG.sandiHash).trim().toLowerCase();
+  return false;
+}
+function tandaiMasuk() {
+  if (!KONFIG.ingatSandi) return;
+  try { localStorage.setItem(KUNCI_MASUK, sha256(KONFIG.idUjian + "|" + (KONFIG.sandiHash || KONFIG.sandiTeks))); } catch (e) {}
+}
+function sudahMasuk() {
+  if (!KONFIG.ingatSandi) return false;
+  try { return localStorage.getItem(KUNCI_MASUK) === sha256(KONFIG.idUjian + "|" + (KONFIG.sandiHash || KONFIG.sandiTeks)); }
+  catch (e) { return false; }
+}
+function lupakanMasuk() { try { localStorage.removeItem(KUNCI_MASUK); } catch (e) {} }
+
+/* ?sandi-baru=xxxx : alat bantu guru untuk membuat hash sandi baru */
+function cekAlatSandi() {
+  const q = new URLSearchParams(location.search);
+  if (!q.has("sandi-baru")) return false;
+  const baru = q.get("sandi-baru") || "";
+  q.delete("sandi-baru");
+  try { history.replaceState(null, "", location.pathname + (q.toString() ? "?" + q : "") + location.hash); } catch (e) {}
+  if (!baru) return false;
+  $("sandiAlatIsi").textContent = `sandiHash: "${sha256(baru)}",`;
+  $("sandiAlat").hidden = false;
+  return true;
+}
+
+let salahSandi = 0, jedaSandi = null;
+function jedakanSandi() {
+  let sisa = KONFIG.jedaSandiDetik;
+  $("sandiSalah").hidden = true;
+  $("sandiTunggu").hidden = false;
+  $("sandiDetik").textContent = sisa;
+  $("sandiMasuk").disabled = true;
+  $("btnMasuk").disabled = true;
+  clearInterval(jedaSandi);
+  jedaSandi = setInterval(() => {
+    sisa--;
+    $("sandiDetik").textContent = sisa;
+    if (sisa <= 0) {
+      clearInterval(jedaSandi);
+      salahSandi = 0;
+      $("sandiTunggu").hidden = true;
+      $("sandiMasuk").disabled = false;
+      $("btnMasuk").disabled = false;
+      $("sandiMasuk").focus();
+    }
+  }, 1000);
+}
+
+function cobaMasuk() {
+  if ($("btnMasuk").disabled) return;
+  if (sandiBenar($("sandiMasuk").value)) {
+    tandaiMasuk();
+    $("sandiMasuk").value = "";
+    jalan();
+    return;
+  }
+  salahSandi++;
+  $("sandiMasuk").value = "";
+  if (salahSandi >= KONFIG.maksSalahSandi) { jedakanSandi(); return; }
+  $("sandiSalah").hidden = false;
+  $("sandiMasuk").focus();
+}
+
+$("btnMasuk").addEventListener("click", cobaMasuk);
+$("sandiMasuk").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); cobaMasuk(); } });
+$("sandiMasuk").addEventListener("input", () => { $("sandiSalah").hidden = true; });
+
+/* =========================================================
+   BOOTSTRAP
+   ========================================================= */
+function jalan() {
+  const hasilReset = cekReset();
+  if (hasilReset === "ok") $("bannerReset").hidden = false;
+  if (hasilReset === "gagal") $("bannerResetGagal").hidden = false;
+
+  const d = KONFIG.simpanProgres ? bacaSimpanan() : null;
+
+  if (d && d.id === KONFIG.idUjian && d.rencana) {
+    terapkanRencana(d.rencana);
+    S.nama = d.nama; S.kelas = d.kelas;
+    S.jawaban = Array.isArray(d.jawaban) && d.jawaban.length === S.soal.length
+      ? d.jawaban : S.soal.map(() => null);
+    S.indeks = Math.min(Math.max(0, d.indeks || 0), S.soal.length - 1);
+    S.pelanggaran = d.pelanggaran || [];
+    S.muatUlang = d.muatUlang || 0;
+    S.mulaiEpoch = d.mulaiEpoch || Date.now();
+    S.tenggat = d.tenggat || (S.mulaiEpoch + KONFIG.durasiMenit * 60 * 1000);
+    S.waktuMulai = new Date(S.mulaiEpoch);
+    S.sisaDetik = sisaDetikSekarang();
+
+    jagaBahasa();
+
+    if (d.selesai) { tampilkanTerkunci(d); return; }
+
+    // waktu habis saat halaman tertutup: langsung dikumpulkan apa adanya
+    if (KONFIG.waktuTerusBerjalan && sisaDetikSekarang() <= 0) {
+      S.mulai = true;
+      selesaikan("Time is up");
+      return;
+    }
+    S.muatUlang = (d.muatUlang || 0) + 1;
+    tampilkanLanjut();
+    return;
+  }
+
+  terapkanRencana(buatRencana());
+  S.jawaban = S.soal.map(() => null);
+  $("waktu").textContent = fmtWaktu(KONFIG.durasiMenit * 60);
+  jagaBahasa();
+  tampilkan("layarMulai");
+}
+
+(function gerbang() {
+  const pakaiAlat = cekAlatSandi();
+  if (!pakaiAlat && (!KONFIG.wajibSandi || !(KONFIG.sandiHash || KONFIG.sandiTeks) || sudahMasuk())) { jalan(); return; }
+  tampilkan("layarMasuk");
+  setTimeout(() => { try { $("sandiMasuk").focus(); } catch (e) {} }, 60);
+})();
 </script>
 </body>
 </html>
