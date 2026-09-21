@@ -7,7 +7,7 @@
 <meta name="google" content="notranslate">
 <meta name="googlebot" content="notranslate">
 <meta http-equiv="Content-Language" content="en">
-<title>Locked Exam — SMK Mikael</title>
+<title>Locked Exam | SMK Mikael</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -422,7 +422,7 @@
   <div class="tirai-kotak">
     <div class="besar">EN</div>
     <h2>Translation detected</h2>
-    <p>This page must stay in English. This is not a violation and nothing was recorded &mdash; just turn the translation off and continue.</p>
+    <p>This page must stay in English. This is not a violation and nothing was recorded. Just turn the translation off and continue.</p>
     <ol class="cara-matikan">
       <li>Chrome: click the translate icon in the address bar &rarr; <b>Show original</b>.</li>
       <li>Or right-click the page &rarr; <b>Translate to English</b> &rarr; turn it off.</li>
@@ -435,8 +435,8 @@
 
 <script>
 /* =========================================================
-   BANK SOAL — Simple Future, Present Continuous, Past Continuous
-   5 paket (Set A–E), masing-masing 42 soal: 21 pilihan ganda (pg) + 21 isian.
+   BANK SOAL: Simple Future, Present Continuous, Past Continuous
+   5 paket (Set A sampai E), masing-masing 42 soal: 21 pilihan ganda (pg) + 21 isian.
    Setiap siswa mendapat satu paket secara acak (acakPaket: true).
    Konteks campuran: umum + teknik mesin. Sebagian soal dibuat
    lebih sulit (klausa ganda, error-finding, tanpa kata kerja terarah).
@@ -448,13 +448,13 @@
 const BANK_SOAL = [
 
 { nama: "Set A", soal: [
-  /* ---------- PILIHAN GANDA (20) ---------- */
-  { t:"pg", q:"Our school ____ a science exhibition next semester.", p:["has","is having","will have","had"], j:2 },
+  /* ---------- PILIHAN GANDA (21) ---------- */
+  { t:"pg", q:"Our school ____ a science exhibition next semester.", p:["has","was having","will have","had"], j:2 },
   { t:"pg", q:"The mechanic ____ the tires of the truck right now.", p:["changes","is changing","was changing","will change"], j:1 },
   { t:"pg", q:"Look! The teacher ____ into the classroom.", p:["walks","is walking","was walking","will walk"], j:1 },
   { t:"pg", q:"At 9 a.m. yesterday, the students ____ a welding demonstration in the workshop.", p:["watch","are watching","were watching","will watch"], j:2 },
   { t:"pg", q:"Which sentence correctly uses the past continuous tense?", p:["He is fixing the motorcycle.","He was fixing the motorcycle.","He will fix the motorcycle.","He fixes the motorcycle."], j:1 },
-  { t:"pg", q:"While the engineer ____ the blueprint, the supervisor ____ into the office.", p:["studies – walks","was studying – walked","is studying – walks","will study – walked"], j:1 },
+  { t:"pg", q:"While the engineer ____ the blueprint, the supervisor walked into the office.", p:["studies","was studying","is studying","will study"], j:1 },
   { t:"pg", q:"I'm sure the weather ____ better tomorrow.", p:["is","was","will be","being"], j:2 },
   { t:"pg", q:"The new hydraulic press ____ when the technician noticed a strange noise.", p:["operates","is operating","was operating","will operate"], j:2 },
   { t:"pg", q:"Find the mistake: \"When the bell rang, the students was writing their final exam.\"", p:["the bell rang","was writing","final exam","When"], j:1 },
@@ -466,84 +466,84 @@ const BANK_SOAL = [
   { t:"pg", q:"At this moment, my father ____ the newspaper in the living room.", p:["reads","is reading","was reading","will read"], j:1 },
   { t:"pg", q:"Yesterday at 2 p.m., the technician ____ the compressor when it suddenly stopped working.", p:["checks","is checking","was checking","will check"], j:2 },
   { t:"pg", q:"Choose the correct negative form of \"They are practicing for the concert.\"", p:["They aren't practice for the concert.","They aren't practicing for the concert.","They doesn't practicing for the concert.","They didn't practicing for the concert."], j:1 },
-  { t:"pg", q:"The supervisor ____ that the new machine ____ ready by next week.", p:["promises – is","promised – was","promises – will be","promised – will be"], j:2 },
+  { t:"pg", q:"The supervisor promises that the new machine ____ ready by next week.", p:["is","was","will be","being"], j:2 },
   { t:"pg", q:"\"The lights suddenly went out.\" \"Yes, I ____ dinner when it happened.\"", p:["cook","am cooking","was cooking","will cook"], j:2 },
-  { t:"pg", q:"Find the mistake: \"The foreman is checking the safety helmets while the workers was entering the site.\"", p:["is checking","the safety helmets","was entering","while"], j:2 },
-  { t:"pg", q:"The mechanic already ordered the spare parts yesterday. Which sentence correctly describes his plan?", p:["He will fix the engine tomorrow.","He is going to fix the engine tomorrow.","He fixes the engine tomorrow.","He was fixing the engine tomorrow."], j:1 },
-  /* ---------- ISIAN (20) ---------- */
+  { t:"pg", q:"Find the mistake: \"The foreman was checking the safety helmets while the workers was entering the site.\"", p:["was checking","the safety helmets","was entering","while"], j:2 },
+  { t:"pg", q:"The mechanic already ordered the spare parts yesterday. Which sentence correctly talks about this future plan?", p:["He will fixing the engine tomorrow.","He is going to fix the engine tomorrow.","He fixes the engine tomorrow.","He was fixing the engine tomorrow."], j:1 },
+  /* ---------- ISIAN (21) ---------- */
   { t:"isian", q:"My mother ____ (cook) dinner right now.", j:["is cooking"] },
   { t:"isian", q:"The operator ____ (start) the machine at the moment.", j:["is starting"] },
-  { t:"isian", q:"We ____ (visit) our grandparents next weekend.", j:["will visit","are going to visit"] },
-  { t:"isian", q:"The company ____ (launch) a new product line next year.", j:["will launch","is going to launch"] },
+  { t:"isian", q:"We ____ (visit) our grandparents next weekend.", j:["will visit","are going to visit","are visiting"] },
+  { t:"isian", q:"The company ____ (launch) a new product line next year.", j:["will launch","is going to launch","is launching"] },
   { t:"isian", q:"At 7 p.m. last night, I ____ (do) my assignment.", j:["was doing"] },
   { t:"isian", q:"Yesterday at 10 a.m., the welder ____ (join) the metal plates.", j:["was joining"] },
   { t:"isian", q:"Look! The workers ____ (build) a new gate for the school.", j:["are building"] },
   { t:"isian", q:"While the technician ____ (test) the engine, the alarm suddenly went off.", j:["was testing"] },
   { t:"isian", q:"You already told your homeroom teacher your plan. ____ (you / attend) the ceremony tomorrow?", j:["are you going to attend","will you attend"] },
   { t:"isian", q:"____ (the mechanic / repair) the brake system now?", j:["is the mechanic repairing"] },
-  { t:"isian", q:"I promise I ____ (not / be) late for the meeting again.", j:["won't be","will not be"] },
-  { t:"isian", q:"The team ____ (not / work) on the assembly line right now; they are on a break.", j:["isn't working","is not working"] },
-  { t:"isian", q:"By this time next week, our class ____ (go) on a field trip, so remember to bring your permission letter.", j:["will go","is going to go"] },
+  { t:"isian", q:"I promise I ____ (not / be) late for the meeting again.", j:["won't be","will not be","am not going to be","'m not going to be"] },
+  { t:"isian", q:"The workers ____ (not / work) on the assembly line right now; they are on a break.", j:["aren't working","are not working"] },
+  { t:"isian", q:"Next week, our class ____ (go) on a field trip, so remember to bring your permission letter.", j:["will go","is going to go","is going"] },
   { t:"isian", q:"While the crane was lifting the heavy beam, the workers ____ (watch) carefully from a safe distance.", j:["were watching"] },
   { t:"isian", q:"I don't think it ____ (rain) tomorrow because the sky is clear.", j:["will rain","is going to rain"] },
   { t:"isian", q:"At this time yesterday, the engineers ____ (inspect) the pressure gauges when an unusual reading appeared.", j:["were inspecting"] },
-  { t:"isian", q:"Right now, the choir ____ (practice) for tomorrow's ceremony.", j:["is practicing","is practising"] },
-  { t:"isian", q:"Next month, the workshop ____ (receive) a new set of lathe machines.", j:["will receive","is going to receive"] },
+  { t:"isian", q:"Right now, the choir members ____ (practice) for tomorrow's ceremony.", j:["are practicing","are practising"] },
+  { t:"isian", q:"Next month, the workshop ____ (receive) a new set of lathe machines.", j:["will receive","is going to receive","is receiving"] },
   { t:"isian", q:"He ____ (not / pay) attention when the teacher explained the formula, so he failed to understand it.", j:["wasn't paying","was not paying"] },
-  { t:"isian", q:"Why ____ (the machine / not / work) properly today?", j:["isn't the machine working","is the machine not working"] },
-  { t:"isian", q:"Look at the smoke coming from the exhaust — the engine ____ (overheat).", j:["is going to overheat"] }
+  { t:"isian", q:"Why ____ (the machine / not / work) properly right now?", j:["isn't the machine working","is the machine not working"] },
+  { t:"isian", q:"Look at the smoke coming from the exhaust! The engine ____ (overheat) in a few minutes.", j:["is going to overheat","will overheat"] }
 ]},
 
 { nama: "Set B", soal: [
-  /* ---------- PILIHAN GANDA (20) ---------- */
-  { t:"pg", q:"Next Monday, our club ____ a bake sale for charity.", p:["holds","is holding","will hold","held"], j:2 },
+  /* ---------- PILIHAN GANDA (21) ---------- */
+  { t:"pg", q:"Next Monday, our club ____ a bake sale for charity.", p:["holds","was holding","will hold","held"], j:2 },
   { t:"pg", q:"The apprentice ____ the drill press at this moment.", p:["uses","is using","was using","will use"], j:1 },
   { t:"pg", q:"Listen! Someone ____ the doorbell.", p:["rings","is ringing","was ringing","will ring"], j:1 },
   { t:"pg", q:"At 3 p.m. yesterday, the fitter ____ the bearing into place.", p:["fits","is fitting","was fitting","will fit"], j:2 },
   { t:"pg", q:"Which sentence is in the simple future (going to) form?", p:["She is going to bake a cake.","She bakes a cake.","She baked a cake.","She was baking a cake."], j:0 },
   { t:"pg", q:"While the operator ____ the milling machine, the power tripped.", p:["operates","is operating","was operating","will operate"], j:2 },
-  { t:"pg", q:"I'm afraid the bus ____ late today.", p:["is","was","will be","being"], j:2 },
+  { t:"pg", q:"I'm afraid the bus ____ late this afternoon.", p:["is","was","will be","being"], j:2 },
   { t:"pg", q:"The boiler ____ steam when the safety valve released pressure.", p:["produces","is producing","was producing","will produce"], j:2 },
   { t:"pg", q:"Find the mistake: \"By the time the guests came, we was decorating the hall.\"", p:["By the time","the guests came","was decorating","the hall"], j:2 },
   { t:"pg", q:"Find the mistake: \"The technician will replaced the faulty sensor tomorrow morning.\"", p:["will replaced","the faulty sensor","tomorrow","morning"], j:0 },
   { t:"pg", q:"\"Why is the road blocked?\" \"Because the workers ____ it right now.\"", p:["repair","are repairing","will repair","were repairing"], j:1 },
   { t:"pg", q:"At this moment, the pressure gauge ____ an abnormal reading.", p:["shows","is showing","was showing","will show"], j:1 },
   { t:"pg", q:"Choose the sentence with correct future word order.", p:["Tomorrow will she leave for Jakarta?","Will she leave for Jakarta tomorrow?","She will leaves tomorrow for Jakarta?","Leave will she tomorrow for Jakarta?"], j:1 },
-  { t:"pg", q:"Choose the correct question form: (the crew / weld / the frame / now)", p:["Do the crew weld the frame now?","Is the crew welding the frame now?","Was the crew welding the frame now?","Will the crew weld the frame now?"], j:1 },
+  { t:"pg", q:"Choose the correct question form: (the technician / weld / the frame / now)", p:["Does the technician weld the frame now?","Is the technician welding the frame now?","Was the technician welding the frame now?","Will the technician weld the frame now?"], j:1 },
   { t:"pg", q:"At the moment, my sister ____ her room.", p:["cleans","is cleaning","was cleaning","will clean"], j:1 },
   { t:"pg", q:"Yesterday at 11 a.m., the crane operator ____ the container onto the truck.", p:["lowers","is lowering","was lowering","will lower"], j:2 },
   { t:"pg", q:"Choose the correct negative form of \"He is joining the club.\"", p:["He isn't join the club.","He isn't joining the club.","He doesn't joining the club.","He didn't joining the club."], j:1 },
-  { t:"pg", q:"The inspector ____ that the machine ____ certified next week.", p:["confirms – is","confirmed – was","confirms – will be","confirmed – will be"], j:2 },
+  { t:"pg", q:"The inspector confirms that the machine ____ certified next week.", p:["is","was","will be","being"], j:2 },
   { t:"pg", q:"\"The power went out.\" \"Yes, I ____ my laptop when it happened.\"", p:["charge","am charging","was charging","will charge"], j:2 },
   { t:"pg", q:"Find the mistake: \"The foreman was inspecting the workshop while the trainees was cleaning their tools.\"", p:["was inspecting","the workshop","was cleaning","while"], j:2 },
-  { t:"pg", q:"The factory manager announced the decision in this morning's meeting. Which sentence correctly reports it?", p:["The factory will open a new branch.","The factory is going to open a new branch.","The factory opens a new branch.","The factory opened a new branch."], j:1 },
-  /* ---------- ISIAN (20) ---------- */
+  { t:"pg", q:"The factory manager announced the decision in this morning's meeting. Which sentence correctly talks about this future plan?", p:["The factory will opening a new branch.","The factory is going to open a new branch.","The factory opens a new branch.","The factory opened a new branch."], j:1 },
+  /* ---------- ISIAN (21) ---------- */
   { t:"isian", q:"My brother ____ (wash) the car right now.", j:["is washing"] },
   { t:"isian", q:"The technician ____ (adjust) the machine at the moment.", j:["is adjusting"] },
-  { t:"isian", q:"They ____ (move) to a new house next month.", j:["will move","are going to move"] },
-  { t:"isian", q:"The factory ____ (upgrade) its equipment next year.", j:["will upgrade","is going to upgrade"] },
+  { t:"isian", q:"They ____ (move) to a new house next month.", j:["will move","are going to move","are moving"] },
+  { t:"isian", q:"The factory ____ (upgrade) its equipment next year.", j:["will upgrade","is going to upgrade","is upgrading"] },
   { t:"isian", q:"At 6 p.m. last night, we ____ (watch) the news.", j:["were watching"] },
   { t:"isian", q:"Yesterday at noon, the fitter ____ (tighten) the bolts.", j:["was tightening"] },
   { t:"isian", q:"Look! The dog ____ (chase) its tail.", j:["is chasing"] },
   { t:"isian", q:"While the driver ____ (load) the truck, the manager arrived unexpectedly.", j:["was loading"] },
   { t:"isian", q:"The coach already put their names on the list. ____ (they / join) the competition next week?", j:["are they going to join","will they join"] },
   { t:"isian", q:"____ (the engineer / measure) the shaft diameter now?", j:["is the engineer measuring"] },
-  { t:"isian", q:"I promise I ____ (not / forget) to bring the documents this time.", j:["won't forget","will not forget"] },
-  { t:"isian", q:"The crew ____ (not / operate) the crane right now; it is under maintenance.", j:["isn't operating","is not operating"] },
-  { t:"isian", q:"By next semester, the school ____ (finish) building the new library, so classes can move in soon.", j:["will finish","is going to finish"] },
+  { t:"isian", q:"I promise I ____ (not / forget) to bring the documents this time.", j:["won't forget","will not forget","am not going to forget","'m not going to forget"] },
+  { t:"isian", q:"The operators ____ (not / operate) the crane right now; it is under maintenance.", j:["aren't operating","are not operating"] },
+  { t:"isian", q:"Next semester, the school ____ (finish) building the new library, so classes can move in soon.", j:["will finish","is going to finish"] },
   { t:"isian", q:"While the forklift was carrying the pallet, the supervisor ____ (record) the delivery time.", j:["was recording"] },
   { t:"isian", q:"I don't believe the match ____ (start) on time because of the heavy rain.", j:["will start","is going to start"] },
   { t:"isian", q:"At this time yesterday, the workers ____ (calibrate) the gauges when the power failed.", j:["were calibrating"] },
-  { t:"isian", q:"Right now, the band ____ (rehearse) for the school festival.", j:["is rehearsing"] },
-  { t:"isian", q:"Next semester, the workshop ____ (add) a new welding station.", j:["will add","is going to add"] },
+  { t:"isian", q:"Right now, the musicians ____ (rehearse) for the school festival.", j:["are rehearsing"] },
+  { t:"isian", q:"Next semester, the workshop ____ (add) a new welding station.", j:["will add","is going to add","is adding"] },
   { t:"isian", q:"She ____ (not / listen) carefully when the instructions were given, so she made a mistake.", j:["wasn't listening","was not listening"] },
-  { t:"isian", q:"Why ____ (the compressor / not / run) smoothly this morning?", j:["isn't the compressor running","is the compressor not running"] },
-  { t:"isian", q:"Listen to that grinding noise — the gearbox ____ (fail).", j:["is going to fail"] }
+  { t:"isian", q:"Why ____ (the compressor / not / run) smoothly right now?", j:["isn't the compressor running","is the compressor not running"] },
+  { t:"isian", q:"Listen to that grinding noise! The gearbox ____ (fail) at any moment.", j:["is going to fail","will fail"] }
 ]},
 
 { nama: "Set C", soal: [
-  /* ---------- PILIHAN GANDA (20) ---------- */
-  { t:"pg", q:"Next Friday, the class ____ a field trip to the museum.", p:["has","is having","will have","had"], j:2 },
+  /* ---------- PILIHAN GANDA (21) ---------- */
+  { t:"pg", q:"Next Friday, the class ____ a field trip to the museum.", p:["has","was having","will have","had"], j:2 },
   { t:"pg", q:"The operator ____ the conveyor belt right now.", p:["stops","is stopping","was stopping","will stop"], j:1 },
   { t:"pg", q:"Look! The birds ____ south for the winter.", p:["fly","are flying","were flying","will fly"], j:1 },
   { t:"pg", q:"At 4 p.m. yesterday, the mechanic ____ the oil filter.", p:["replaces","is replacing","was replacing","will replace"], j:2 },
@@ -556,41 +556,41 @@ const BANK_SOAL = [
   { t:"pg", q:"\"Why is everyone outside?\" \"Because the alarm ____ right now.\"", p:["rings","is ringing","will ring","was ringing"], j:1 },
   { t:"pg", q:"Right now, the robotic arm ____ the components onto the tray.", p:["places","is placing","was placing","will place"], j:1 },
   { t:"pg", q:"Choose the sentence with correct future word order.", p:["Next year will graduate she?","Will she graduate next year?","She will graduates next year?","Graduate will she next year?"], j:1 },
-  { t:"pg", q:"Choose the correct question form: (the team / test / the prototype / now)", p:["Do the team test the prototype now?","Is the team testing the prototype now?","Was the team testing the prototype now?","Will the team test the prototype now?"], j:1 },
+  { t:"pg", q:"Choose the correct question form: (the engineers / test / the prototype / now)", p:["Do the engineers test the prototype now?","Are the engineers testing the prototype now?","Were the engineers testing the prototype now?","Will the engineers test the prototype now?"], j:1 },
   { t:"pg", q:"At this moment, my cousin ____ his bicycle.", p:["repairs","is repairing","was repairing","will repair"], j:1 },
   { t:"pg", q:"Yesterday at 1 p.m., the electrician ____ the wiring in the workshop.", p:["checks","is checking","was checking","will check"], j:2 },
   { t:"pg", q:"Choose the correct negative form of \"We are attending the seminar.\"", p:["We aren't attend the seminar.","We aren't attending the seminar.","We doesn't attending the seminar.","We didn't attending the seminar."], j:1 },
-  { t:"pg", q:"The manager ____ that the delivery ____ on time next week.", p:["assures – is","assured – was","assures – will be","assured – will be"], j:2 },
+  { t:"pg", q:"The manager assures us that the delivery ____ on time next week.", p:["is","was","will be","being"], j:2 },
   { t:"pg", q:"\"The fire alarm went off.\" \"Yes, I ____ lunch when it happened.\"", p:["eat","am eating","was eating","will eat"], j:2 },
-  { t:"pg", q:"Find the mistake: \"The supervisor is monitoring the line while the operators was recording the output.\"", p:["is monitoring","the line","was recording","while"], j:2 },
-  { t:"pg", q:"The school board approved the plan last week. Which sentence correctly reports it?", p:["The school will open a new lab.","The school is going to open a new lab.","The school opens a new lab.","The school opened a new lab."], j:1 },
-  /* ---------- ISIAN (20) ---------- */
+  { t:"pg", q:"Find the mistake: \"The supervisor was monitoring the line while the operators was recording the output.\"", p:["was monitoring","the line","was recording","while"], j:2 },
+  { t:"pg", q:"The school board approved the plan last week. Which sentence correctly talks about this future plan?", p:["The school will opening a new lab.","The school is going to open a new lab.","The school opens a new lab.","The school opened a new lab."], j:1 },
+  /* ---------- ISIAN (21) ---------- */
   { t:"isian", q:"My father ____ (wash) the car at the moment.", j:["is washing"] },
   { t:"isian", q:"The technician ____ (calibrate) the meter right now.", j:["is calibrating"] },
-  { t:"isian", q:"We ____ (attend) a wedding next Saturday.", j:["will attend","are going to attend"] },
-  { t:"isian", q:"The factory ____ (install) new safety signs next month.", j:["will install","is going to install"] },
+  { t:"isian", q:"We ____ (attend) a wedding next Saturday.", j:["will attend","are going to attend","are attending"] },
+  { t:"isian", q:"The factory ____ (install) new safety signs next month.", j:["will install","is going to install","is installing"] },
   { t:"isian", q:"At 9 p.m. last night, I ____ (read) a novel.", j:["was reading"] },
   { t:"isian", q:"Yesterday at 8 a.m., the welder ____ (prepare) the metal sheets.", j:["was preparing"] },
   { t:"isian", q:"Look! The cat ____ (climb) the tree.", j:["is climbing"] },
   { t:"isian", q:"While the operator ____ (monitor) the gauge, the pressure suddenly dropped.", j:["was monitoring"] },
   { t:"isian", q:"She already signed the registration form. ____ (she / join) the choir next term?", j:["is she going to join","will she join"] },
   { t:"isian", q:"____ (the technician / calibrate) the scale now?", j:["is the technician calibrating"] },
-  { t:"isian", q:"I promise I ____ (not / interrupt) you during the meeting.", j:["won't interrupt","will not interrupt"] },
-  { t:"isian", q:"The team ____ (not / test) the prototype right now; they are reviewing the design first.", j:["isn't testing","is not testing"] },
-  { t:"isian", q:"By next month, the club ____ (organize) a charity concert, so we need volunteers soon.", j:["will organize","is going to organize","will organise","is going to organise"] },
+  { t:"isian", q:"I promise I ____ (not / interrupt) you during the meeting.", j:["won't interrupt","will not interrupt","am not going to interrupt","'m not going to interrupt"] },
+  { t:"isian", q:"The engineers ____ (not / test) the prototype right now; they are reviewing the design first.", j:["aren't testing","are not testing"] },
+  { t:"isian", q:"Next month, the club ____ (organize) a charity concert, so we need volunteers soon.", j:["will organize","is going to organize"] },
   { t:"isian", q:"While the crane was lowering the beam, the foreman ____ (check) the alignment.", j:["was checking"] },
   { t:"isian", q:"I doubt the train ____ (arrive) early because of the delay.", j:["will arrive","is going to arrive"] },
   { t:"isian", q:"At this time yesterday, the mechanics ____ (dismantle) the old engine when a part broke off.", j:["were dismantling"] },
   { t:"isian", q:"Right now, the students ____ (rehearse) their presentation.", j:["are rehearsing"] },
-  { t:"isian", q:"Next year, the school ____ (open) a new mechanical engineering lab.", j:["will open","is going to open"] },
+  { t:"isian", q:"Next year, the school ____ (open) a new mechanical engineering lab.", j:["will open","is going to open","is opening"] },
   { t:"isian", q:"He ____ (not / concentrate) during the lecture, so he missed the key point.", j:["wasn't concentrating","was not concentrating"] },
-  { t:"isian", q:"Why ____ (the machine / not / start) this morning?", j:["isn't the machine starting","is the machine not starting"] },
-  { t:"isian", q:"The sky is completely dark — it ____ (rain) before we finish the project.", j:["is going to rain"] }
+  { t:"isian", q:"Why ____ (the machine / not / run) properly right now?", j:["isn't the machine running","is the machine not running"] },
+  { t:"isian", q:"The sky is completely dark, so it ____ (rain) before we finish the project.", j:["is going to rain","will rain"] }
 ]},
 
 { nama: "Set D", soal: [
-  /* ---------- PILIHAN GANDA (20) ---------- */
-  { t:"pg", q:"Next week, my uncle ____ us for the holidays.", p:["visits","is visiting","will visit","visited"], j:2 },
+  /* ---------- PILIHAN GANDA (21) ---------- */
+  { t:"pg", q:"Next week, my uncle ____ us for the holidays.", p:["visits","was visiting","will visit","visited"], j:2 },
   { t:"pg", q:"The operator ____ the valve at the moment.", p:["closes","is closing","was closing","will close"], j:1 },
   { t:"pg", q:"Look! The kids ____ in the pool.", p:["swim","are swimming","were swimming","will swim"], j:1 },
   { t:"pg", q:"At 10 a.m. yesterday, the technician ____ the sensor.", p:["installs","is installing","was installing","will install"], j:2 },
@@ -603,41 +603,41 @@ const BANK_SOAL = [
   { t:"pg", q:"\"Why is the hallway crowded?\" \"Because the students ____ for the assembly right now.\"", p:["gather","are gathering","will gather","were gathering"], j:1 },
   { t:"pg", q:"Right now, the machine ____ an unusual vibration.", p:["shows","is showing","was showing","will show"], j:1 },
   { t:"pg", q:"Choose the sentence with correct future word order.", p:["Tomorrow will they arrive?","Will they arrive tomorrow?","They will arrives tomorrow?","Arrive will they tomorrow?"], j:1 },
-  { t:"pg", q:"Choose the correct question form: (the mechanic / adjust / the clutch / now)", p:["Do the mechanic adjust the clutch now?","Is the mechanic adjusting the clutch now?","Was the mechanic adjusting the clutch now?","Will the mechanic adjust the clutch now?"], j:1 },
+  { t:"pg", q:"Choose the correct question form: (the mechanic / adjust / the clutch / now)", p:["Does the mechanic adjust the clutch now?","Is the mechanic adjusting the clutch now?","Was the mechanic adjusting the clutch now?","Will the mechanic adjust the clutch now?"], j:1 },
   { t:"pg", q:"At this moment, my aunt ____ dinner.", p:["prepares","is preparing","was preparing","will prepare"], j:1 },
   { t:"pg", q:"Yesterday at 3 p.m., the operator ____ the cutting machine when the blade jammed.", p:["uses","is using","was using","will use"], j:2 },
   { t:"pg", q:"Choose the correct negative form of \"They are joining the trip.\"", p:["They aren't join the trip.","They aren't joining the trip.","They doesn't joining the trip.","They didn't joining the trip."], j:1 },
-  { t:"pg", q:"The technician ____ that the readings ____ normal by tomorrow.", p:["expects – are","expected – were","expects – will be","expected – will be"], j:2 },
+  { t:"pg", q:"The technician expects that the readings ____ normal by tomorrow.", p:["are","were","will be","being"], j:2 },
   { t:"pg", q:"\"The siren went off suddenly.\" \"Yes, I ____ my bag when it happened.\"", p:["pack","am packing","was packing","will pack"], j:2 },
-  { t:"pg", q:"Find the mistake: \"The supervisor is checking the report while the technicians was fixing the machine.\"", p:["is checking","the report","was fixing","while"], j:2 },
-  { t:"pg", q:"The workshop head already signed the purchase order this morning. Which sentence correctly reports the plan?", p:["The workshop will buy a new welding machine.","The workshop is going to buy a new welding machine.","The workshop buys a new welding machine.","The workshop bought a new welding machine."], j:1 },
-  /* ---------- ISIAN (20) ---------- */
+  { t:"pg", q:"Find the mistake: \"The supervisor was checking the report while the technicians was fixing the machine.\"", p:["was checking","the report","was fixing","while"], j:2 },
+  { t:"pg", q:"The workshop head already signed the purchase order this morning. Which sentence correctly talks about this future plan?", p:["The workshop will buying a new welding machine.","The workshop is going to buy a new welding machine.","The workshop buys a new welding machine.","The workshop bought a new welding machine."], j:1 },
+  /* ---------- ISIAN (21) ---------- */
   { t:"isian", q:"My sister ____ (paint) her room right now.", j:["is painting"] },
   { t:"isian", q:"The operator ____ (adjust) the pressure valve at the moment.", j:["is adjusting"] },
-  { t:"isian", q:"We ____ (celebrate) our anniversary next month.", j:["will celebrate","are going to celebrate"] },
-  { t:"isian", q:"The workshop ____ (buy) a new welding machine next year.", j:["will buy","is going to buy"] },
+  { t:"isian", q:"We ____ (celebrate) our anniversary next month.", j:["will celebrate","are going to celebrate","are celebrating"] },
+  { t:"isian", q:"The workshop ____ (buy) a new welding machine next year.", j:["will buy","is going to buy","is buying"] },
   { t:"isian", q:"At 8 p.m. last night, I ____ (study) for the test.", j:["was studying"] },
   { t:"isian", q:"Yesterday at 9 a.m., the fitter ____ (assemble) the frame.", j:["was assembling"] },
   { t:"isian", q:"Look! The baby ____ (cry) loudly.", j:["is crying"] },
   { t:"isian", q:"While the operator ____ (run) the machine, the emergency stop was triggered.", j:["was running"] },
   { t:"isian", q:"He already bought his plane ticket. ____ (he / travel) abroad next year?", j:["is he going to travel","will he travel"] },
   { t:"isian", q:"____ (the mechanic / check) the tires now?", j:["is the mechanic checking"] },
-  { t:"isian", q:"I promise I ____ (not / disturb) you while you study.", j:["won't disturb","will not disturb"] },
+  { t:"isian", q:"I promise I ____ (not / disturb) you during your study time.", j:["won't disturb","will not disturb","am not going to disturb","'m not going to disturb"] },
   { t:"isian", q:"The workers ____ (not / assemble) the parts right now; they are having a briefing.", j:["aren't assembling","are not assembling"] },
-  { t:"isian", q:"By next year, the government ____ (build) a new bridge, so traffic should improve.", j:["will build","is going to build"] },
+  { t:"isian", q:"Next year, the government ____ (build) a new bridge, so traffic should improve.", j:["will build","is going to build"] },
   { t:"isian", q:"While the technician was replacing the filter, the assistant ____ (record) the maintenance log.", j:["was recording"] },
   { t:"isian", q:"I doubt the flight ____ (depart) on time due to the storm.", j:["will depart","is going to depart"] },
-  { t:"isian", q:"At this time yesterday, the crew ____ (repair) the conveyor when it suddenly stopped.", j:["were repairing"] },
+  { t:"isian", q:"At this time yesterday, the technicians ____ (repair) the conveyor when it suddenly stopped.", j:["were repairing"] },
   { t:"isian", q:"Right now, the players ____ (warm up) before the match.", j:["are warming up"] },
-  { t:"isian", q:"Next semester, the school ____ (add) more practical sessions in the workshop.", j:["will add","is going to add"] },
+  { t:"isian", q:"Next semester, the school ____ (add) more practical sessions in the workshop.", j:["will add","is going to add","is adding"] },
   { t:"isian", q:"He ____ (not / focus) during practice, so he missed the shot.", j:["wasn't focusing","was not focusing"] },
-  { t:"isian", q:"Why ____ (the engine / not / run) smoothly today?", j:["isn't the engine running","is the engine not running"] },
-  { t:"isian", q:"The machine is shaking badly and making a strange sound — it ____ (break down).", j:["is going to break down"] }
+  { t:"isian", q:"Why ____ (the engine / not / run) smoothly right now?", j:["isn't the engine running","is the engine not running"] },
+  { t:"isian", q:"The machine is shaking badly and making a strange sound, so it ____ (break down) at any moment.", j:["is going to break down","will break down"] }
 ]},
 
 { nama: "Set E", soal: [
-  /* ---------- PILIHAN GANDA (20) ---------- */
-  { t:"pg", q:"Next year, my brother ____ university.", p:["enters","is entering","will enter","entered"], j:2 },
+  /* ---------- PILIHAN GANDA (21) ---------- */
+  { t:"pg", q:"Next year, my brother ____ university.", p:["enters","was entering","will enter","entered"], j:2 },
   { t:"pg", q:"The technician ____ the meter reading right now.", p:["records","is recording","was recording","will record"], j:1 },
   { t:"pg", q:"Look! The clouds ____ dark.", p:["turn","are turning","were turning","will turn"], j:1 },
   { t:"pg", q:"At 2 p.m. yesterday, the operator ____ the lathe machine.", p:["uses","is using","was using","will use"], j:2 },
@@ -650,46 +650,46 @@ const BANK_SOAL = [
   { t:"pg", q:"\"Why is it noisy outside?\" \"Because the workers ____ construction right now.\"", p:["do","are doing","will do","were doing"], j:1 },
   { t:"pg", q:"Right now, the sensor ____ an abnormal temperature.", p:["detects","is detecting","was detecting","will detect"], j:1 },
   { t:"pg", q:"Choose the sentence with correct future word order.", p:["Next week will he move?","Will he move next week?","He will moves next week?","Move will he next week?"], j:1 },
-  { t:"pg", q:"Choose the correct question form: (the fitter / tighten / the bolts / now)", p:["Do the fitter tighten the bolts now?","Is the fitter tightening the bolts now?","Was the fitter tightening the bolts now?","Will the fitter tighten the bolts now?"], j:1 },
+  { t:"pg", q:"Choose the correct question form: (the fitter / tighten / the bolts / now)", p:["Does the fitter tighten the bolts now?","Is the fitter tightening the bolts now?","Was the fitter tightening the bolts now?","Will the fitter tighten the bolts now?"], j:1 },
   { t:"pg", q:"At this moment, my grandmother ____ tea.", p:["makes","is making","was making","will make"], j:1 },
   { t:"pg", q:"Yesterday at 5 p.m., the electrician ____ the panel when the power surged.", p:["checks","is checking","was checking","will check"], j:2 },
   { t:"pg", q:"Choose the correct negative form of \"She is joining the club.\"", p:["She isn't join the club.","She isn't joining the club.","She doesn't joining the club.","She didn't joining the club."], j:1 },
-  { t:"pg", q:"The supervisor ____ that the machine ____ repaired by Monday.", p:["hopes – is","hoped – was","hopes – will be","hoped – will be"], j:2 },
+  { t:"pg", q:"The supervisor hopes that the machine ____ repaired by Monday.", p:["is","was","will be","being"], j:2 },
   { t:"pg", q:"\"The bell suddenly rang.\" \"Yes, I ____ my bag when it happened.\"", p:["pack","am packing","was packing","will pack"], j:2 },
-  { t:"pg", q:"Find the mistake: \"The supervisor is reviewing the schedule while the workers was loading the truck.\"", p:["is reviewing","the schedule","was loading","while"], j:2 },
-  { t:"pg", q:"The company director already signed the lease last week. Which sentence correctly reports the plan?", p:["The company will open a new branch.","The company is going to open a new branch.","The company opens a new branch.","The company opened a new branch."], j:1 },
-  /* ---------- ISIAN (20) ---------- */
+  { t:"pg", q:"Find the mistake: \"The supervisor was reviewing the schedule while the workers was loading the truck.\"", p:["was reviewing","the schedule","was loading","while"], j:2 },
+  { t:"pg", q:"The company director already signed the lease last week. Which sentence correctly talks about this future plan?", p:["The company will opening a new branch.","The company is going to open a new branch.","The company opens a new branch.","The company opened a new branch."], j:1 },
+  /* ---------- ISIAN (21) ---------- */
   { t:"isian", q:"My father ____ (fix) the fence right now.", j:["is fixing"] },
   { t:"isian", q:"The technician ____ (measure) the voltage at the moment.", j:["is measuring"] },
-  { t:"isian", q:"We ____ (move) into a new classroom next term.", j:["will move","are going to move"] },
-  { t:"isian", q:"The company ____ (open) a new branch next year.", j:["will open","is going to open"] },
-  { t:"isian", q:"At 10 p.m. last night, I ____ (sleep) already.", j:["was sleeping"] },
-  { t:"isian", q:"Yesterday at 7 a.m., the crew ____ (prepare) the tools.", j:["was preparing"] },
+  { t:"isian", q:"We ____ (move) into a new classroom next term.", j:["will move","are going to move","are moving"] },
+  { t:"isian", q:"The company ____ (open) a new branch next year.", j:["will open","is going to open","is opening"] },
+  { t:"isian", q:"At 10 p.m. last night, I ____ (sleep) in my room.", j:["was sleeping"] },
+  { t:"isian", q:"Yesterday at 7 a.m., the technicians ____ (prepare) the tools.", j:["were preparing"] },
   { t:"isian", q:"Look! The leaves ____ (fall) from the tree.", j:["are falling"] },
   { t:"isian", q:"While the technician ____ (install) the new part, the machine restarted unexpectedly.", j:["was installing"] },
   { t:"isian", q:"You already registered your team. ____ (you / compete) in the tournament next month?", j:["are you going to compete","will you compete"] },
   { t:"isian", q:"____ (the operator / adjust) the settings now?", j:["is the operator adjusting"] },
-  { t:"isian", q:"I promise I ____ (not / delay) the report again.", j:["won't delay","will not delay"] },
-  { t:"isian", q:"The crew ____ (not / weld) the joint right now; they are waiting for the inspector.", j:["isn't welding","is not welding"] },
-  { t:"isian", q:"By next week, the committee ____ (announce) the results, so keep checking the board.", j:["will announce","is going to announce"] },
+  { t:"isian", q:"I promise I ____ (not / delay) the report again.", j:["won't delay","will not delay","am not going to delay","'m not going to delay"] },
+  { t:"isian", q:"The welders ____ (not / weld) the joint right now; they are waiting for the inspector.", j:["aren't welding","are not welding"] },
+  { t:"isian", q:"Next week, the committee ____ (announce) the results, so keep checking the board.", j:["will announce","is going to announce"] },
   { t:"isian", q:"While the crane was moving the load, the supervisor ____ (watch) from below.", j:["was watching"] },
   { t:"isian", q:"I doubt the shop ____ (open) early tomorrow because of the holiday.", j:["will open","is going to open"] },
   { t:"isian", q:"At this time yesterday, the technicians ____ (align) the shaft when the machine stopped.", j:["were aligning"] },
-  { t:"isian", q:"Right now, the audience ____ (wait) for the show to start.", j:["is waiting"] },
-  { t:"isian", q:"Next semester, the lab ____ (get) new measuring instruments.", j:["will get","is going to get"] },
+  { t:"isian", q:"Right now, the visitors ____ (wait) for the show to start.", j:["are waiting"] },
+  { t:"isian", q:"Next semester, the lab ____ (get) new measuring instruments.", j:["will get","is going to get","is getting"] },
   { t:"isian", q:"She ____ (not / pay) attention to the safety briefing, so she made an error.", j:["wasn't paying","was not paying"] },
-  { t:"isian", q:"Why ____ (the pump / not / work) properly today?", j:["isn't the pump working","is the pump not working"] },
-  { t:"isian", q:"Sparks are coming from the wiring — something ____ (go) wrong.", j:["is going to go"] }
+  { t:"isian", q:"Why ____ (the pump / not / work) properly right now?", j:["isn't the pump working","is the pump not working"] },
+  { t:"isian", q:"Sparks are coming from the wiring, so something ____ (go) wrong very soon.", j:["is going to go","will go"] }
 ]}
 
 ];
 
 /* =========================================================
-   KONFIGURASI — ubah bagian ini saja
+   KONFIGURASI: ubah bagian ini saja
    ========================================================= */
 const KONFIG = {
-  judul: "English Exam — Tenses (Simple Future, Present Continuous, Past Continuous)",
-  deskripsi: "40 questions: 20 multiple choice and 20 fill in the blank. Mixed general and mechanical-engineering contexts. A few questions are more challenging than the rest. Each student gets one of 5 question sets at random.",
+  judul: "English Exam: Tenses (Simple Future, Present Continuous, Past Continuous)",
+  deskripsi: "42 questions: 21 multiple choice and 21 fill in the blank. Mixed general and mechanical-engineering contexts. A few questions are more challenging than the rest. Each student gets one of 5 question sets at random.",
   durasiMenit: 60,
   maksPelanggaran: 3,      // setelah ini ujian dikunci otomatis
   acakPaket: true,         // siswa mendapat salah satu dari 5 paket secara acak
@@ -989,7 +989,7 @@ function selesaikan(cara) {
   $("rekapWrap").hidden = !KONFIG.tampilkanRincian;
   $("rekapJawaban").innerHTML = S.soal.map((s, i) => {
     const st = !terjawab(i) ? "kosong" : benarkah(i) ? "ok" : "salah";
-    const tanda = st === "ok" ? "\u2713" : st === "salah" ? "\u2715" : "\u2013";
+    const tanda = st === "ok" ? "\u2713" : st === "salah" ? "\u2715" : "\u25CB";
     let ket = !terjawab(i) ? "Not answered"
       : s.t === "pg" ? `Your answer: ${huruf[S.jawaban[i]]}. ${s.p[S.jawaban[i]]}` : `Your answer: ${teksJawab(i)}`;
     if (KONFIG.tampilkanKunci && st !== "ok") ket += ` \u00b7 Correct answer: ${s.t === "pg" ? s.p[s.j] : s.j[0]}`;
@@ -1255,7 +1255,7 @@ function jagaBahasa() {
 }
 
 /* =========================================================
-   GERBANG SANDI — ujian hanya terbuka setelah sandi benar
+   GERBANG SANDI: ujian hanya terbuka setelah sandi benar
    ========================================================= */
 const KUNCI_MASUK = "smkmikael:masuk:" + KONFIG.idUjian;
 
