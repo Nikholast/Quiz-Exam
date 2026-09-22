@@ -150,6 +150,18 @@
   .petunjuk em { font-style: normal; color: var(--ungu); font-weight: 600; }
 
   .navigasi { display: flex; justify-content: space-between; gap: 12px; margin-top: 32px; }
+  .tombol.utama:disabled { background: var(--garis); color: var(--abu); cursor: not-allowed; }
+
+  /* tombol kumpul dipisah jauh dari Next agar tidak tertekan tanpa sengaja */
+  .zona-kumpul {
+    margin-top: 72px; padding: 18px 20px;
+    border: 1.5px dashed var(--garis); border-radius: 12px; background: #fff;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .zona-teks { flex: 1 1 260px; }
+  .zona-teks b { display: block; font-size: 15px; color: var(--tinta); }
+  .zona-teks span { font-size: 13.5px; color: var(--abu); }
+  @media (max-width: 520px) { .zona-kumpul #btnKumpul { width: 100%; } }
 
   /* ---------- hasil ---------- */
   .skor {
@@ -362,8 +374,15 @@
     <div class="opsi" id="opsi"></div>
     <div class="navigasi">
       <button class="tombol polos" id="btnSebelum">Previous</button>
-      <button class="tombol polos" id="btnBerikut">Next</button>
-      <button class="tombol merah" id="btnKumpul" hidden>Submit answers</button>
+      <button class="tombol utama" id="btnBerikut">Next</button>
+    </div>
+
+    <div class="zona-kumpul">
+      <div class="zona-teks">
+        <b>Finished all the questions?</b>
+        <span>Check the numbers at the top first. Purple numbers are answered. You can submit from any question.</span>
+      </div>
+      <button class="tombol merah" id="btnKumpul">Submit answers</button>
     </div>
   </section>
 
@@ -921,8 +940,8 @@ function renderSoal() {
   }
 
   $("btnSebelum").disabled = i === 0;
-  $("btnBerikut").hidden = i === total - 1;
-  $("btnKumpul").hidden = i !== total - 1;
+  $("btnBerikut").disabled = i === total - 1;
+  $("btnBerikut").textContent = i === total - 1 ? "Last question" : "Next";
   renderNav();
 }
 
@@ -937,7 +956,7 @@ function renderNav() {
 }
 
 $("btnSebelum").addEventListener("click", () => { S.indeks--; renderSoal(); simpanProgres(); });
-$("btnBerikut").addEventListener("click", () => { S.indeks++; renderSoal(); simpanProgres(); });
+$("btnBerikut").addEventListener("click", () => { if (S.indeks >= S.soal.length - 1) return; S.indeks++; renderSoal(); simpanProgres(); });
 $("btnKumpul").addEventListener("click", () => {
   const kosong = S.soal.filter((_, j) => !terjawab(j)).length;
   $("dialogIsi").textContent = kosong
