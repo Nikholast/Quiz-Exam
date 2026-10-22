@@ -37,6 +37,30 @@
   button { font: inherit; cursor: pointer; }
   button:focus-visible, input:focus-visible, label:focus-within { outline: 3px solid var(--merah); outline-offset: 2px; }
 
+  /* ---------- gerbang kata sandi ---------- */
+  .gerbang {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--ungu); color: #fff;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .gerbang[hidden] { display: none; }
+  .gerbang-kotak { width: 100%; max-width: 400px; text-align: center; }
+  .gerbang-kotak .sekolah { font-weight: 800; font-size: 15px; opacity: .85; }
+  .gerbang-kotak h2 { margin-top: 10px; font-size: 26px; }
+  .gerbang-kotak p { margin-top: 6px; opacity: .85; font-size: 15px; }
+  .gerbang-kotak input {
+    width: 100%; margin-top: 22px; padding: 14px 16px; font: inherit; font-size: 18px;
+    border-radius: 10px; border: 2px solid rgba(255,255,255,.35);
+    background: #fff; color: var(--tinta); text-align: center; letter-spacing: .08em;
+  }
+  .gerbang-kotak input:focus { outline: none; border-color: var(--merah); box-shadow: 0 0 0 3px rgba(179,22,27,.45); }
+  .gerbang-kotak .tombol { width: 100%; margin-top: 14px; background: var(--merah); color: #fff; padding: 15px; font-size: 16px; }
+  .gerbang-kotak .tombol:hover { background: #8F1015; }
+  .gerbang-salah { margin-top: 12px; font-weight: 700; color: #FFC2C6; min-height: 22px; }
+  .gerbang-kotak.goyang { animation: goyang .35s; }
+  @keyframes goyang { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+  body.terkunci-sandi { overflow: hidden; }
+
   /* ---------- kop ---------- */
   .kop {
     position: sticky; top: 0; z-index: 10;
@@ -136,6 +160,9 @@
   .petunjuk em { font-style: normal; color: var(--ungu); font-weight: 600; }
 
   .navigasi { display: flex; justify-content: space-between; gap: 12px; margin-top: 32px; }
+  .kumpul-area { margin-top: 44px; padding-top: 22px; border-top: 2px dashed var(--garis); }
+  .kumpul-info { font-size: 14px; color: var(--abu); text-align: center; }
+  .kumpul-area .tombol.lebar { margin-top: 12px; }
 
   /* ---------- hasil ---------- */
   .skor {
@@ -220,10 +247,22 @@
 
   .dialog-aksi { display: flex; gap: 12px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
 
-  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
-<body class="notranslate" translate="no">
+<body class="notranslate terkunci-sandi" translate="no">
+
+<!-- ===== GERBANG KATA SANDI ===== -->
+<div class="gerbang" id="gerbang" role="dialog" aria-modal="true" aria-labelledby="gerbangJudul">
+  <form class="gerbang-kotak" id="gerbangForm" autocomplete="off">
+    <div class="sekolah">SMK Katolik St. Mikael Surakarta</div>
+    <h2 id="gerbangJudul">Enter the quiz password</h2>
+    <p>Your teacher will give you the password.</p>
+    <input type="password" id="gerbangSandi" placeholder="Password" aria-label="Password" autocomplete="off" spellcheck="false">
+    <div class="gerbang-salah" id="gerbangSalah" aria-live="polite"></div>
+    <button type="submit" class="tombol">Open the quiz</button>
+  </form>
+</div>
 
 <header class="kop">
   <div class="kop-in">
@@ -260,6 +299,7 @@
         <li>Do not switch tabs, open other apps, or minimise the window.</li>
         <li>Every time you leave this page counts as <b>one violation</b>.</li>
         <li>After <b><span class="maksPelanggaran">3</span> violations</b>, the quiz locks and your answers are submitted as they are.</li>
+        <li>Your question set is <b>fixed on this device</b>. Reloading the page does not change it.</li>
         <li>Questions: <b><span id="infoSoal"></span></b>. Type your fill-in answers; capital letters do not matter.</li>
         <li>Time limit: <b><span id="durasiTeks"></span> minutes</b>. The quiz is submitted automatically when time runs out.</li>
       </ul>
@@ -321,7 +361,11 @@
     <div class="navigasi">
       <button class="tombol polos" id="btnSebelum">Previous</button>
       <button class="tombol polos" id="btnBerikut">Next</button>
-      <button class="tombol merah" id="btnKumpul" hidden>Submit answers</button>
+    </div>
+
+    <div class="kumpul-area">
+      <p class="kumpul-info" id="kumpulInfo"></p>
+      <button class="tombol merah lebar" id="btnKumpul">Submit all answers</button>
     </div>
   </section>
 
@@ -735,7 +779,7 @@ const BANK_SOAL = [
 const KONFIG = {
   judul: "Quiz 2 — Present, Past & Future Perfect",
   deskripsi: "Present perfect, past perfect and future perfect, with some simple past questions. Each student gets one of five question sets at random.",
-  durasiMenit: 60,
+  durasiMenit: 75,
   maksPelanggaran: 3,      // setelah ini kuis dikunci otomatis
   acakPaket: true,         // siswa mendapat salah satu paket secara acak
   acakSoal: true,          // urutan soal diacak
@@ -744,6 +788,11 @@ const KONFIG = {
   tampilkanKunci: false,   // tampilkan jawaban yang benar di layar hasil
   // URL Web App dari Google Apps Script (lihat PANDUAN.md). Kosongkan jika tidak dipakai.
   sheetUrl: "https://script.google.com/macros/s/AKfycbxtMHaZTYqv6n39nFDDU63S8LWPggPgTwHsqklSKWb4R0xj4ADf1BmF-m6Jdapn_wJMzQ/exec",
+
+  /* ---- kata sandi masuk ----
+     Disimpan tersamar: tiap huruf = kode huruf + 7. Sandi saat ini: micojosjis26
+     Kosongkan array ini ( [] ) untuk mematikan gerbang kata sandi. */
+  sandiKode: [116,112,106,118,113,118,122,113,112,122,57,61],
 
   /* ---- sesi, anti-ulang, anti-terjemah ---- */
   idUjian: "quiz-2-perfect-tenses",   // kunci penyimpanan; WAJIB unik per file
@@ -760,7 +809,7 @@ const KONFIG = {
    STATE
    ========================================================= */
 const S = {
-  mulai: false, selesai: false,
+  mulai: false, selesai: false, sandiOk: false,
   soal: [], jawaban: [], indeks: 0,
   pelanggaran: [], sisaDetik: KONFIG.durasiMenit * 60,
   timer: null, terakhirPelanggaran: 0, overlayTerbuka: false,
@@ -808,6 +857,39 @@ const benarkah = i => {
   if (!terjawab(i)) return false;
   return s.t === "pg" ? j === s.j : s.j.some(k => norm(k) === norm(j));
 };
+
+/* =========================================================
+   GERBANG KATA SANDI
+   ========================================================= */
+const KUNCI_SANDI = "smkmikael:sandi:" + KONFIG.idUjian;
+const sandiCocok = s => s.length === KONFIG.sandiKode.length
+  && [...s].every((c, i) => c.charCodeAt(0) + 7 === KONFIG.sandiKode[i]);
+
+function bukaGerbang() {
+  S.sandiOk = true;
+  $("gerbang").hidden = true;
+  document.body.classList.remove("terkunci-sandi");
+}
+function siapkanGerbang() {
+  if (!KONFIG.sandiKode || !KONFIG.sandiKode.length) { bukaGerbang(); return; }
+  // sandi sudah benar di tab ini: tidak ditanya lagi
+  try { if (sessionStorage.getItem(KUNCI_SANDI) === "1") { bukaGerbang(); return; } } catch (e) {}
+  document.body.classList.add("terkunci-sandi");
+  setTimeout(() => $("gerbangSandi").focus(), 50);
+}
+$("gerbangForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const inp = $("gerbangSandi");
+  if (sandiCocok(inp.value.trim())) {
+    try { sessionStorage.setItem(KUNCI_SANDI, "1"); } catch (err) {}
+    bukaGerbang();
+  } else {
+    $("gerbangSalah").textContent = "Wrong password. Try again.";
+    inp.value = ""; inp.focus();
+    const k = $("gerbangForm");
+    k.classList.remove("goyang"); void k.offsetWidth; k.classList.add("goyang");
+  }
+});
 
 /* =========================================================
    MULAI
@@ -920,16 +1002,21 @@ document.addEventListener("webkitfullscreenchange", () => {
 document.addEventListener("contextmenu", e => { if (S.mulai) e.preventDefault(); });
 ["copy", "cut", "paste"].forEach(ev => document.addEventListener(ev, e => { if (S.mulai) e.preventDefault(); }));
 document.addEventListener("keydown", e => {
-  if (!S.mulai || S.selesai) return;
   const k = e.key.toLowerCase();
+  // setelah sandi benar: F5 / Ctrl+R / Cmd+R diblokir
+  const muatUlang = e.key === "F5" || ((e.ctrlKey || e.metaKey) && k === "r");
+  if (S.sandiOk && !S.selesai && muatUlang) { e.preventDefault(); return; }
+
+  if (!S.mulai || S.selesai) return;
   const blok = e.key === "F12" || e.key === "Escape"
     || (e.ctrlKey && ["c","v","x","u","s","p","t","n","w","r"].includes(k))
     || (e.ctrlKey && e.shiftKey && ["i","j","c"].includes(k))
     || (e.altKey && e.key === "Tab");
   if (blok) e.preventDefault();
 });
+// peringatan sebelum meninggalkan / memuat ulang halaman, sejak sandi dimasukkan
 window.addEventListener("beforeunload", e => {
-  if (S.mulai && !S.selesai) { e.preventDefault(); e.returnValue = ""; }
+  if ((S.sandiOk || S.mulai) && !S.selesai) { e.preventDefault(); e.returnValue = ""; }
 });
 
 /* =========================================================
@@ -965,12 +1052,14 @@ function renderSoal() {
   }
 
   $("btnSebelum").disabled = i === 0;
-  $("btnBerikut").hidden = i === total - 1;
-  $("btnKumpul").hidden = i !== total - 1;
+  $("btnBerikut").disabled = i === total - 1;
   renderNav();
 }
 
 function renderNav() {
+  const nJawab = S.soal.filter((_, j) => terjawab(j)).length;
+  $("kumpulInfo").textContent = `${nJawab} of ${S.soal.length} answered. Press this only when you have finished all questions.`;
+
   $("navsoal").innerHTML = S.soal.map((_, j) => {
     const cls = [j === S.indeks ? "sekarang" : "", terjawab(j) ? "terjawab" : ""].join(" ");
     return `<button class="${cls}" data-i="${j}" aria-label="Question ${j + 1}">${j + 1}</button>`;
@@ -980,8 +1069,8 @@ function renderNav() {
   }));
 }
 
-$("btnSebelum").addEventListener("click", () => { S.indeks--; renderSoal(); simpanProgres(); });
-$("btnBerikut").addEventListener("click", () => { S.indeks++; renderSoal(); simpanProgres(); });
+$("btnSebelum").addEventListener("click", () => { if (S.indeks > 0) { S.indeks--; renderSoal(); simpanProgres(); } });
+$("btnBerikut").addEventListener("click", () => { if (S.indeks < S.soal.length - 1) { S.indeks++; renderSoal(); simpanProgres(); } });
 $("btnKumpul").addEventListener("click", () => {
   const kosong = S.soal.filter((_, j) => !terjawab(j)).length;
   $("dialogIsi").textContent = kosong
@@ -1139,7 +1228,7 @@ function tampilkan(id) {
 }
 
 /* =========================================================
-   SESI: SIMPAN PROGRES, LANJUT SETELAH REFRESH, KUNCI ULANG
+   SESI: SIMPAN PROGRES, KUNCI PAKET, LANJUT SETELAH REFRESH, KUNCI ULANG
    ========================================================= */
 const KUNCI_SIMPAN = "smkmikael:kuis:" + KONFIG.idUjian;
 
@@ -1156,7 +1245,7 @@ function simpanProgres() {
   if (!KONFIG.simpanProgres || !S.mulai || !S.rencana) return;
   try {
     localStorage.setItem(KUNCI_SIMPAN, sandiIn({
-      v: 1, id: KONFIG.idUjian,
+      v: 1, id: KONFIG.idUjian, dimulai: true,
       nama: S.nama, kelas: S.kelas, rencana: S.rencana,
       jawaban: S.jawaban, indeks: S.indeks,
       pelanggaran: S.pelanggaran, logTerjemah: S.logTerjemah,
@@ -1168,6 +1257,18 @@ function simpanProgres() {
     }));
   } catch (e) {}
 }
+
+/* paket dikunci di perangkat ini sejak halaman pertama kali dibuka.
+   Refresh / tutup-buka tab tetap mendapat paket yang sama.
+   Hanya ?reset-exam yang menghapusnya sehingga paket diundi ulang. */
+function kunciRencana() {
+  try {
+    const ada = bacaSimpanan();
+    if (ada && ada.id === KONFIG.idUjian && ada.dimulai !== false) return; // jangan timpa sesi yang sudah berjalan
+    localStorage.setItem(KUNCI_SIMPAN, sandiIn({ v: 1, id: KONFIG.idUjian, dimulai: false, rencana: S.rencana }));
+  } catch (e) {}
+}
+
 /* simpan yang ditunda, dipakai untuk ketikan isian supaya tidak menulis tiap huruf */
 function simpanNanti() {
   clearTimeout(S.tundaSimpan);
@@ -1186,6 +1287,10 @@ function buatRencana() {
     if (s.t === "pg" && KONFIG.acakPilihan) pilihan[i] = acak(s.p.map((_, k) => k));
   });
   return { paket: iPaket, urut, pilihan };
+}
+function rencanaSah(r) {
+  const pk = r && KONFIG.paket[r.paket];
+  return !!(pk && Array.isArray(r.urut) && r.urut.length === pk.soal.length);
 }
 function terapkanRencana(r) {
   const pk = KONFIG.paket[r.paket] || KONFIG.paket[0];
@@ -1237,6 +1342,7 @@ function tampilkanLanjut() {
 }
 
 function tampilkanTerkunci(d) {
+  S.selesai = true;
   $("kunciSkor").textContent = d.skor ?? 0;
   const dikunci = String(d.cara || "").startsWith("Locked");
   $("kunciSkorKotak").classList.toggle("dikunci", dikunci);
@@ -1314,9 +1420,13 @@ function jagaBahasa() {
   if (hasilReset === "ok") $("bannerReset").hidden = false;
   if (hasilReset === "gagal") $("bannerResetGagal").hidden = false;
 
-  const d = KONFIG.simpanProgres ? bacaSimpanan() : null;
+  siapkanGerbang();
 
-  if (d && d.id === KONFIG.idUjian && d.rencana) {
+  const d = bacaSimpanan();
+  const cocok = d && d.id === KONFIG.idUjian && rencanaSah(d.rencana);
+
+  /* ---- sesi yang sudah dimulai: lanjutkan atau tampilkan hasil ---- */
+  if (cocok && d.dimulai !== false && KONFIG.simpanProgres) {
     terapkanRencana(d.rencana);
     S.nama = d.nama; S.kelas = d.kelas;
     S.jawaban = Array.isArray(d.jawaban) && d.jawaban.length === S.soal.length
@@ -1343,7 +1453,9 @@ function jagaBahasa() {
     return;
   }
 
-  terapkanRencana(buatRencana());
+  /* ---- belum mulai: pakai paket yang sudah terkunci, atau undi sekali lalu kunci ---- */
+  terapkanRencana(cocok ? d.rencana : buatRencana());
+  kunciRencana();
   S.jawaban = S.soal.map(() => null);
   $("waktu").textContent = fmtWaktu(KONFIG.durasiMenit * 60);
   jagaBahasa();
